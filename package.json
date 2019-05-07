@@ -1,0 +1,18 @@
+{
+  "name": "waifu-time",
+  "version": "1.0.0",
+  "description": "API that scrapes nyaa website for anime torrents",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Razvan",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.16.4",
+    "puppeteer": "^1.15.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
