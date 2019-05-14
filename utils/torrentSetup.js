@@ -1,12 +1,13 @@
 const WebTorrent = require('webtorrent');
 const path = require('path');
-const client = new WebTorrent();
 const router = require('express').Router();
+const magnetURI = require('magnet-uri');
 const fs = require('fs');
 
+const client = new WebTorrent();
+
 // TODO: this is a dummy variable for testing only, implement dynamic magnets
-const magnet =
-	'magnet:?xt=urn:btih:ad4561a1a5d14a1e2b6fc88d934eab98e858c23d&dn=%5BHorribleSubs%5D%20Boku%20no%20Hero%20Academia%20-%2063%20%5B720p%5D.mkv&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce';
+let magnet;
 
 let stats = {
 	progress: 0,
@@ -20,14 +21,27 @@ client.on('error', err => {
 
 client.on('download', bytes => {
 	stats = {
-		progress: Math.round(client.progress * 100 * 100) / 100,
+		progress: client.progress,
 		downloadSpeed: client.downloadSpeed,
 		ratio: client.ratio
 	};
 });
 
+let previousTorrent = {};
+
 // Adding the magnet file to the download
-router.get('/add/:magnet', (req, res, next) => {
+router.get('/add/*', (req, res, next) => {
+	magnet = magnetURI.encode(req.query);
+
+	// cleaning up torrent downloads
+	for (let tor in previousTorrent) {
+		client.remove(previousTorrent[tor], data =>
+			console.log('deteleted torrent')
+		);
+		delete tor;
+	}
+
+	console.log(magnet);
 	client.add(magnet, { path: path.join(__dirname + '/tmp') }, torrent => {
 		let files = [];
 
@@ -37,16 +51,16 @@ router.get('/add/:magnet', (req, res, next) => {
 				length: data.length
 			});
 		});
+		previousTorrent.torID = magnet;
 		res.status(200);
 		res.json(files);
 	});
 });
 
 // Store the file variable here in case user refreshes page it won't give an error
-let file = {};
 
-router.get('/stream/:magnet/:file_name', (req, res, next) => {
-	// let magnet = req.params.magnet;
+router.get('/stream/:file_name', (req, res, next) => {
+	let file = {};
 	var tor = client.get(magnet);
 
 	for (i = 0; i < tor.files.length; i++) {
@@ -87,7 +101,7 @@ router.get('/stream/:magnet/:file_name', (req, res, next) => {
 		end: end
 	};
 	let stream = file.createReadStream(stream_position);
-
+	console.log(stream);
 	stream.pipe(res);
 
 	//	If there was an error while opening a stream we stop the
