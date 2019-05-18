@@ -64,10 +64,15 @@ router.get('/stream/:file_name', (req, res, next) => {
 	var tor = client.get(magnet);
 
 	for (i = 0; i < tor.files.length; i++) {
-		// TODO: validate the file with the req.params.file_name to add the right file to the file object
-		// if (tor.files[i].name == req.params.file_name) {
-		file = tor.files[i];
-		//}
+		// Validate the file with the req.params.file_name to add the right file to the file object
+		//if (tor.files[i].name == req.params.file_name) {
+		if (new RegExp(req.params.file_name).test(tor.files[i].name)) {
+			file = tor.files[i];
+		} else {
+			res.json({
+				error: 'Invalid file name'
+			});
+		}
 	}
 
 	let range = req.headers.range;
@@ -77,7 +82,7 @@ router.get('/stream/:file_name', (req, res, next) => {
 	//  Browser doesn't ask for range during first request,
 	//  Just set it to 0
 	if (!range) {
-		range = '0';
+		range = `0-${file.length}`;
 	}
 
 	let positions = range.replace(/bytes=/, '').split('-');
