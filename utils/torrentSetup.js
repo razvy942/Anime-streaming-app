@@ -1,8 +1,8 @@
-const WebTorrent = require('webtorrent');
-const path = require('path');
-const router = require('express').Router();
-const magnetURI = require('magnet-uri');
-const fs = require('fs');
+const WebTorrent = require("webtorrent");
+const path = require("path");
+const router = require("express").Router();
+const magnetURI = require("magnet-uri");
+const fs = require("fs");
 
 const client = new WebTorrent();
 
@@ -10,115 +10,127 @@ const client = new WebTorrent();
 let magnet;
 
 let stats = {
-	progress: 0,
-	downloadSpeed: 0,
-	ratio: 0
+  progress: 0,
+  downloadSpeed: 0,
+  ratio: 0
 };
 
-client.on('error', err => {
-	console.log(err.message);
+client.on("error", err => {
+  console.log(err.message);
 });
 
-client.on('download', bytes => {
-	stats = {
-		progress: client.progress,
-		downloadSpeed: client.downloadSpeed,
-		ratio: client.ratio
-	};
+client.on("download", bytes => {
+  stats = {
+    progress: client.progress,
+    downloadSpeed: client.downloadSpeed,
+    ratio: client.ratio
+  };
 });
 
 let previousTorrent = {};
 
 // Adding the magnet file to the download
-router.get('/add/*', (req, res, next) => {
-	magnet = magnetURI.encode(req.query);
+router.get("/add/*", (req, res, next) => {
+  magnet = magnetURI.encode(req.query);
 
-	// cleaning up torrent downloads
-	for (let tor in previousTorrent) {
-		client.remove(previousTorrent[tor], data =>
-			console.log('deteleted torrent')
-		);
-		delete tor;
-	}
+  // deleting previous files
+  fs.readdir(path.join(__dirname + "/tmp"), (err, data) => {
+    console.log(data);
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].startsWith("[")) {
+        // fs.unlink(path.join(__dirname + "/tmp/" + data[i]), err => {
+        //   console.log(err);
+        // });
+      }
+    }
+  });
 
-	console.log(magnet);
-	client.add(magnet, { path: path.join(__dirname + '/tmp') }, torrent => {
-		let files = [];
+  // cleaning up torrent downloads
+  for (let tor in previousTorrent) {
+    client.remove(previousTorrent[tor], data =>
+      console.log("deteleted torrent")
+    );
+    delete tor;
+  }
 
-		torrent.files.forEach(data => {
-			files.push({
-				name: data.name,
-				length: data.length
-			});
-		});
-		previousTorrent.torID = magnet;
-		res.status(200);
-		res.json(files);
-	});
+  console.log(magnet);
+  client.add(magnet, { path: path.join(__dirname + "/tmp") }, torrent => {
+    let files = [];
+
+    torrent.files.forEach(data => {
+      files.push({
+        name: data.name,
+        length: data.length
+      });
+    });
+    previousTorrent.torID = magnet;
+    res.status(200);
+    res.json(files);
+  });
 });
 
 // Store the file variable here in case user refreshes page it won't give an error
 
-router.get('/stream/:file_name', (req, res, next) => {
-	let file = {};
-	var tor = client.get(magnet);
+router.get("/stream/:file_name", (req, res, next) => {
+  let file = {};
+  var tor = client.get(magnet);
 
-	for (i = 0; i < tor.files.length; i++) {
-		// Validate the file with the req.params.file_name to add the right file to the file object
-		//if (tor.files[i].name == req.params.file_name) {
-		if (new RegExp(req.params.file_name).test(tor.files[i].name)) {
-			file = tor.files[i];
-		} else {
-			res.json({
-				error: 'Invalid file name'
-			});
-		}
-	}
+  for (i = 0; i < tor.files.length; i++) {
+    // Validate the file with the req.params.file_name to add the right file to the file object
+    //if (tor.files[i].name == req.params.file_name) {
+    if (new RegExp(req.params.file_name).test(tor.files[i].name)) {
+      file = tor.files[i];
+    } else {
+      res.json({
+        error: "Invalid file name"
+      });
+    }
+  }
 
-	let range = req.headers.range;
+  let range = req.headers.range;
 
-	console.log(range);
+  console.log(range);
 
-	//  Browser doesn't ask for range during first request,
-	//  Just set it to 0
-	if (!range) {
-		range = `0-${file.length}`;
-	}
+  //  Browser doesn't ask for range during first request,
+  //  Just set it to 0
+  if (!range) {
+    range = `0-${file.length}`;
+  }
 
-	let positions = range.replace(/bytes=/, '').split('-');
-	let start = parseInt(positions[0], 10);
+  let positions = range.replace(/bytes=/, "").split("-");
+  let start = parseInt(positions[0], 10);
 
-	let file_size = file.length;
-	let end = positions[1] ? parseInt(positions[1], 10) : file_size - 1;
-	let chunksize = end - start + 1;
-	let head = {
-		'Content-Range': 'bytes ' + start + '-' + end + '/' + file_size,
-		'Accept-Ranges': 'bytes',
-		'Content-Length': chunksize,
-		'Content-Type': 'video/mp4'
-	};
+  let file_size = file.length;
+  let end = positions[1] ? parseInt(positions[1], 10) : file_size - 1;
+  let chunksize = end - start + 1;
+  let head = {
+    "Content-Range": "bytes " + start + "-" + end + "/" + file_size,
+    "Accept-Ranges": "bytes",
+    "Content-Length": chunksize,
+    "Content-Type": "video/mp4"
+  };
 
-	// Status code 206 refers to partial content, we are streaming the file in chunks
-	res.writeHead(206, head);
+  // Status code 206 refers to partial content, we are streaming the file in chunks
+  res.writeHead(206, head);
 
-	let stream_position = {
-		start: start,
-		end: end
-	};
-	let stream = file.createReadStream(stream_position);
-	console.log(stream);
-	stream.pipe(res);
+  let stream_position = {
+    start: start,
+    end: end
+  };
+  let stream = file.createReadStream(stream_position);
+  console.log(stream);
+  stream.pipe(res);
 
-	//	If there was an error while opening a stream we stop the
-	//	request and display it.
-	stream.on('error', function(err) {
-		return next(err);
-	});
+  //	If there was an error while opening a stream we stop the
+  //	request and display it.
+  stream.on("error", function(err) {
+    return next(err);
+  });
 });
 
-router.get('/stats', (req, res, next) => {
-	res.status(200);
-	res.json(stats);
+router.get("/stats", (req, res, next) => {
+  res.status(200);
+  res.json(stats);
 });
 
 module.exports = router;
