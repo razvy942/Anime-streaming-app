@@ -1,3 +1,4 @@
 node_modules
 stream.js
 utils/tmp
+.vscode
