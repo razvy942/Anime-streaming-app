@@ -1,0 +1,18 @@
+.not-found {
+	margin: auto;
+	text-align: center;
+	width: 100vw;
+	height: 100vh;
+	background: url('https://i.pinimg.com/originals/83/7c/b6/837cb695ea2fe68914dfe19cf7f9a048.png');
+	background-repeat: no-repeat;
+	background-size: 50%;
+	opacity: 0.8;
+}
+
+.contain {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+}

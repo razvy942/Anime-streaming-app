@@ -1,0 +1,17 @@
+.main {
+	background: black;
+	height: 100vh;
+	width: 100vw;
+	margin: auto;
+	display: flex;
+}
+
+.spinner {
+	margin: auto;
+	text-align: center;
+}
+
+.spinner p {
+	margin-top: 5px;
+	color: white;
+}

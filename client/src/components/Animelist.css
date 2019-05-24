@@ -1,88 +1,79 @@
-body {
-  background: #888;
-}
-
 input {
-  width: 14vw;
-  padding: 5px;
+	width: 14vw;
+	padding: 5px;
 
-  margin-right: 10px;
+	margin-right: 10px;
 }
 
 .nav-bar {
-  width: 95%;
-  background: white;
-  margin: auto;
-  box-shadow: 0 0 10px #444;
-  border-radius: 4px;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  margin-top: 10px;
+	width: 95%;
+	background: white;
+	margin: auto;
+	box-shadow: 0 0 10px #444;
+	border-radius: 4px;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	margin-top: 10px;
 }
 
-.nav-bar ul {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
+ul {
+	display: flex;
+	flex-direction: row;
+	justify-content: flex-end;
 }
 
-.nav-bar ul li {
-  list-style: none;
+ul li {
+	list-style: none;
+	margin: 4px;
 }
 
-.nav-bar ul li:hover {
-  cursor: pointer;
-}
-
-.btn {
-  background: #555;
-  color: white;
-  border-radius: 4px;
-  margin: 10px;
-  padding: 10px;
-}
-
-.btn:hover {
-  cursor: pointer;
-  box-shadow: 0 0 10px #444;
-}
-
-.container {
-  margin: 20px;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+.episodes {
+	margin-top: 70px;
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
 }
 
 .ep-box {
-  width: 20%;
-  height: auto;
-  border: 1px solid black;
-  border-radius: 4px;
-  box-shadow: 0 0 10px #444;
-  padding: 20px;
-  margin: 10px;
-  background: white;
-  text-align: center;
+	width: 20%;
+	height: auto;
+	border: 1px solid black;
+	border-radius: 4px;
+	box-shadow: 0 0 10px #444;
+	padding: 20px;
+	margin: 10px;
+	background: white;
+	text-align: center;
+	display: flex;
+	flex-direction: column;
 }
 
 .ep-title {
-  font-size: 1.2em;
-  font-weight: bold;
+	font-size: 1.2em;
+	font-weight: bold;
+}
+
+.card-spacing {
+	margin: 10px;
+}
+
+.episode-spacing {
+	margin: 3px;
+	width: 100%;
 }
 
 @media (max-width: 450px) {
-  .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+	.episodes {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
 
-  .ep-box {
-    min-width: 80%;
-    margin-top: 10px;
-    height: auto;
-  }
+	.ep-box {
+		min-width: 80%;
+		margin-top: 10px;
+		height: auto;
+	}
 }
