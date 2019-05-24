@@ -4,4 +4,4 @@ Web app built using express and React. It scrapes a torrent website for anime th
 
 
 # Build
-In order to build and test simply open a terminal in the root directory and type npm run build.
+In order to build and test simply open a terminal in the root directory and type ```npm run build```.
