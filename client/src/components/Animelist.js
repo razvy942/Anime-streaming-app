@@ -1,14 +1,32 @@
 import React, { Component } from 'react';
-import { Button, Nav, Navbar, Form, FormControl, Card } from 'react-bootstrap';
+import {
+	Button,
+	Nav,
+	Navbar,
+	Form,
+	FormControl,
+	Card,
+	Dropdown
+} from 'react-bootstrap';
 
 import './Animelist.css';
 import Loader from './Loader';
 import NotFound from './Notfound';
+import EpCard from './EpisodeImage';
 import axios from '../axios-instance';
 import { throws } from 'assert';
 
+// https://api.jikan.moe/v3/search/anime?q=${title}&page=1  search only page 1 results are relevant
+
+// https://api.jikan.moe/v3/anime/${id}  gives info about show by id
+
 export default class Animelist extends Component {
-	state = { links: {}, currentSearch: '', loaded: false };
+	state = {
+		links: {},
+		currentSearch: '',
+		loaded: false,
+		selectedRes: '1080p'
+	};
 
 	componentDidMount = () => {
 		this.defaultPage();
@@ -54,6 +72,13 @@ export default class Animelist extends Component {
 		this.setState({
 			currentSearch: e.target.value
 		});
+	};
+
+	selectRes = resolution => {
+		this.setState({
+			selectedRes: resolution
+		});
+		this.getNewReleases();
 	};
 
 	render() {
@@ -103,6 +128,29 @@ export default class Animelist extends Component {
 								New Releases
 							</Nav.Link>
 						</Nav>
+						<Dropdown style={{ marginRight: '10px' }}>
+							<Dropdown.Toggle variant="info" id="dropdown-basic">
+								Select Resolution ({this.state.selectedRes})
+							</Dropdown.Toggle>
+
+							<Dropdown.Menu>
+								<Dropdown.Item
+									onClick={() => this.selectRes('1080p')}
+								>
+									1080p
+								</Dropdown.Item>
+								<Dropdown.Item
+									onClick={() => this.selectRes('720p')}
+								>
+									720p
+								</Dropdown.Item>
+								<Dropdown.Item
+									onClick={() => this.selectRes('480p')}
+								>
+									480p
+								</Dropdown.Item>
+							</Dropdown.Menu>
+						</Dropdown>
 						<Form inline>
 							<FormControl
 								type="text"
@@ -122,34 +170,32 @@ export default class Animelist extends Component {
 							return (
 								<Card
 									className="card-spacing"
-									style={{ width: '18rem' }}
+									style={{
+										width: '12rem',
+										margin: '10px'
+									}}
 									key={key}
 								>
-									<Card.Img
+									{/* <Card.Img
 										variant="top"
 										src="https://66.media.tumblr.com/dfc08dc2cf210659031a3bcc404381cd/tumblr_o70k5ji9a31qla6e4o1_1280.jpg"
-									/>
+                  /> */}
+									<EpCard title={key} />
 									<Card.Body>
 										<Card.Title>{key}</Card.Title>
 
 										{Object.keys(this.state.links[key]).map(
 											ep => {
-												let fullHD;
-												let HD;
-												try {
-													fullHD = this.state.links[
-														key
-													][ep]['1080p'][2];
-												} catch (err) {
-													fullHD = 'No data found';
-												}
+												let epLink;
 
 												try {
-													HD = this.state.links[key][
-														ep
-													]['720p'][2];
+													epLink = this.state.links[
+														key
+													][ep][
+														this.state.selectedRes
+													][2];
 												} catch (err) {
-													HD = 'No data found';
+													epLink = 'No data found';
 												}
 
 												return (
@@ -158,35 +204,19 @@ export default class Animelist extends Component {
 															className="episode-spacing"
 															onClick={() =>
 																this.addMagnetClickHandler(
-																	fullHD,
+																	epLink,
 																	key
 																)
 															}
-															key={
-																key +
-																ep +
-																'-1080p'
-															}
+															key={key + ep}
 														>
-															{ep}: 1080p: click
-															here to watch
-														</Button>
-														<Button
-															className="episode-spacing"
-															onClick={() =>
-																this.addMagnetClickHandler(
-																	HD,
-																	key
-																)
+															{ep}:{' '}
+															{
+																this.state
+																	.selectedRes
 															}
-															key={
-																key +
-																ep +
-																'-720p'
-															}
-														>
-															{ep}: 720p: click
-															here to watch
+															: click here to
+															watch
 														</Button>
 													</>
 												);

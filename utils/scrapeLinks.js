@@ -102,6 +102,7 @@ const createLinks = links => {
 	for (let anime in animeLinks) {
 		if (
 			animeLinks[anime].length == 0 ||
+			new RegExp('batch', 'i').test(anime) ||
 			!anime.startsWith('[HorribleSubs]')
 		) {
 			delete animeLinks[anime];
