@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:400,600&display=swap');
+
+.Modal {
+	width: 35vh;
+	border-radius: 8px;
+	margin: 40px auto;
+	padding: 20px;
+	z-index: 500;
+	position: fixed;
+	background: white;
+	transition: all 0.4s ease-out;
+	box-shadow: 0 0 20px #898989;
+	box-sizing: border-box;
+}
+
+.Title {
+	text-align: center;
+	font-family: 'Lato';
+	font-weight: 600;
+	font-size: 2em;
+}
+
+.Subtitle {
+	text-align: center;
+	font-family: 'Lato';
+	font-size: 1.2em;
+	margin-top: 10px;
+	margin-bottom: 20px;
+}
+
+.Content {
+	font-family: 'Lato';
+	font-size: 1.3em;
+	padding: 15px;
+}
+
+@media (max-width: 400px) {
+	.Modal {
+		width: 90%;
+	}
+}

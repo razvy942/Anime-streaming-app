@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css?family=Lato:400,600&display=swap');
+
+form {
+	width: 100%;
+	text-align: center;
+}
+
+.or {
+	font-family: 'Lato';
+	font-weight: 600;
+	font-size: 0.5em;
+	color: #7f8c8d;
+}
+
+span {
+	margin-right: 10px;
+	padding-left: 10px;
+	padding-right: 10px;
+	font-size: 1.2em;
+	text-align: center;
+	vertical-align: middle;
+}
+
+input {
+	font-family: 'Lato', 'Sans-serif';
+	font-size: 0.7em;
+	padding: 5px;
+}
+
+.login-form {
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.login-form input {
+	margin: 5px;
+	width: 80%;
+}
+
+.button {
+	letter-spacing: 0.1ch;
+	width: 80%;
+	height: 40px;
+	margin: 5px;
+	padding: 5px;
+	border: none;
+	border-radius: 3px;
+	color: white;
+	font: 'Lato';
+	font-size: 0.8em;
+	font-weight: 600;
+}
+
+.login-button {
+	margin-top: 20px;
+	background: red;
+}
+
+.google-button {
+	background: #4885ed;
+	text-align: start;
+}
+
+.facebook-button {
+	background: #3b5998;
+	text-align: start;
+}
+
+.modal-foot {
+	font-family: 'Lato', 'Sans-serif';
+	font-size: 0.7em;
+	font-weight: 600;
+	color: #7f8c8d;
+}
+
+.modal-foot:hover {
+	cursor: pointer;
+}

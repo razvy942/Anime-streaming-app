@@ -14,7 +14,8 @@ import Loader from './Loader';
 import NotFound from './Notfound';
 import EpCard from './EpisodeImage';
 import axios from '../axios-instance';
-import { throws } from 'assert';
+import Modal from './UI/Modal';
+import Login from './UI/Login';
 
 // https://api.jikan.moe/v3/search/anime?q=${title}&page=1  search only page 1 results are relevant
 
@@ -25,7 +26,9 @@ export default class Animelist extends Component {
 		links: {},
 		currentSearch: '',
 		loaded: false,
-		selectedRes: '1080p'
+		selectedRes: '1080p',
+		isLoggedIn: false,
+		showLogInModal: false
 	};
 
 	componentDidMount = () => {
@@ -79,6 +82,12 @@ export default class Animelist extends Component {
 			selectedRes: resolution
 		});
 		this.getNewReleases();
+	};
+
+	showLoginModal = () => {
+		this.setState({
+			showLogInModal: !this.state.showLogInModal
+		});
 	};
 
 	render() {
@@ -162,8 +171,27 @@ export default class Animelist extends Component {
 								Search
 							</Button>
 						</Form>
+						{!this.state.isLoggedIn && (
+							<Button onClick={this.showLoginModal}>Login</Button>
+						)}
 					</Navbar.Collapse>
 				</Navbar>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						marginTop: '50px'
+					}}
+				>
+					<Modal
+						show={this.state.showLogInModal}
+						clicked={this.showLoginModal}
+						title="Welcome to waifu time"
+						subtitle="Find new anime to watch"
+					>
+						<Login />
+					</Modal>
+				</div>
 				<div className="episodes container">
 					{this.state.loaded ? (
 						Object.keys(this.state.links).map(key => {

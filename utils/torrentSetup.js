@@ -3,11 +3,12 @@ const path = require('path');
 const router = require('express').Router();
 const magnetURI = require('magnet-uri');
 const fs = require('fs');
+const MatroskaSubtitles = require('matroska-subtitles');
 
 const exec = require('child_process').exec;
 
 const client = new WebTorrent();
-
+let parser = new MatroskaSubtitles();
 // global variable to hold magnet info
 let magnet;
 
@@ -54,7 +55,7 @@ router.get('/add/*', (req, res, next) => {
 			}
 		}
 
-		console.log(magnet);
+		//console.log(magnet);
 		client.add(magnet, { path: path.join(__dirname + '/tmp') }, torrent => {
 			let files = [];
 
@@ -74,7 +75,7 @@ router.get('/add/*', (req, res, next) => {
 // Store the file variable here in case user refreshes page it won't give an error
 
 router.get('/stream/:file_name', (req, res, next) => {
-	let file = {};
+	let file = null;
 	var tor = client.get(magnet);
 
 	if (tor) {
@@ -99,15 +100,12 @@ router.get('/stream/:file_name', (req, res, next) => {
 			}
 		});
 	}
-	console.log(file);
+	//console.log(file);
 	//if (file.path) {
 	let dirPath = path.join(__dirname, '..', 'client', 'src', 'components');
 
 	let filePath = path.join(__dirname + '/tmp/' + file.path);
-	exec(
-		`ffmpeg -i "${filePath}" -map 0:s:0 ${dirPath}\\out.vtt -y	`,
-		(err, stdout, stderr) => {}
-	);
+
 	//}
 
 	let range = req.headers.range;
@@ -141,20 +139,45 @@ router.get('/stream/:file_name', (req, res, next) => {
 		end: end
 	};
 	let stream = file.createReadStream(stream_position);
-	// console.log(stream);
-
 	stream.pipe(res);
-
-	//	If there was an error while opening a stream we stop the
-	//	request and display it.
-	stream.on('error', function(err) {
-		return next(err);
-	});
+	// if (stream) {
+	// 	parseSubs(stream_position.end, file, parser);
+	// }
 });
 
 router.get('/stats', (req, res, next) => {
 	res.status(200);
 	res.json(stats);
 });
+
+// async function parseSubsAsync(start, fp) {
+// 	var parser = new MatroskaSubtitles();
+
+// 	// first an array of subtitle track information is emitted
+// 	parser.once('tracks', function(tracks) {
+// 		console.log(tracks);
+// 	});
+
+// 	// afterwards each subtitle is emitted
+// 	parser.on('subtitle', function(subtitle, trackNumber) {
+// 		console.log('Track ' + trackNumber + ':', subtitle);
+// 	});
+// 	await fp.createReadStream().pipe(parser);
+// }
+
+// const parseSubs = (start, fp) => {
+// 	var parser = new MatroskaSubtitles();
+
+// 	// first an array of subtitle track information is emitted
+// 	parser.once('tracks', function(tracks) {
+// 		console.log(tracks);
+// 	});
+
+// 	// afterwards each subtitle is emitted
+// 	parser.on('subtitle', function(subtitle, trackNumber) {
+// 		console.log('Track ' + trackNumber + ':', subtitle);
+// 	});
+// 	fp.createReadStream().pipe(parser);
+// };
 
 module.exports = router;
