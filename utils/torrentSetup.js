@@ -4,11 +4,12 @@ const router = require('express').Router();
 const magnetURI = require('magnet-uri');
 const fs = require('fs');
 const MatroskaSubtitles = require('matroska-subtitles');
+const parseRange = require('range-parser');
 
 const exec = require('child_process').exec;
 
 const client = new WebTorrent();
-let parser = new MatroskaSubtitles();
+
 // global variable to hold magnet info
 let magnet;
 
@@ -33,116 +34,92 @@ client.on('download', bytes => {
 let previousTorrent = {};
 
 // Adding the magnet file to the download
-router.get('/add/*', (req, res, next) => {
+router.get('/add/*', async (req, res, next) => {
 	magnet = magnetURI.encode(req.query);
 
-	// cleaning up torrent downloads
-	for (let tor in previousTorrent) {
-		client.remove(previousTorrent[tor], data =>
-			console.log('deteleted torrent')
-		);
-		delete tor;
+	// cleaning  up torrent downloads
+	// for (let tor in previousTorrent) {
+	// 	client.remove(previousTorrent[tor], data =>
+	// 		console.log(`deteleted torrent ${data}`)
+	// 	);
+	// 	delete tor;
+	// }
+
+	try {
+		//await clearTmp();
+	} catch (err) {
+		console.log(err);
+		//throw err;
 	}
+	client.add(magnet, { path: path.join(__dirname + '/tmp') }, torrent => {
+		let files = [];
 
-	// deleting previous files
-	fs.readdir(path.join(__dirname + '/tmp'), (err, data) => {
-		// console.log(data);
-		for (let i = 0; i < data.length; i++) {
-			if (data[i].startsWith('[')) {
-				fs.unlink(path.join(__dirname + '/tmp/' + data[i]), err => {
-					console.log(err);
-				});
-			}
-		}
-
-		//console.log(magnet);
-		client.add(magnet, { path: path.join(__dirname + '/tmp') }, torrent => {
-			let files = [];
-
-			torrent.files.forEach(data => {
-				files.push({
-					name: data.name,
-					length: data.length
-				});
+		torrent.files.forEach(data => {
+			files.push({
+				name: data.name,
+				length: data.length
 			});
-			previousTorrent.torID = magnet;
-			res.status(200);
-			res.json(files);
 		});
+		previousTorrent.torID = magnet;
+		res.status(200);
+		res.json(files);
 	});
 });
 
-// Store the file variable here in case user refreshes page it won't give an error
-
 router.get('/stream/:file_name', (req, res, next) => {
-	let file = null;
-	var tor = client.get(magnet);
+	const tor = client.get(magnet);
+	const filePath = path.join(__dirname, 'tmp', tor.files[0].path);
+	const size = tor.files[0].length;
 
-	if (tor) {
-		for (i = 0; i < tor.files.length; i++) {
-			// Validate the file with the req.params.file_name to add the right file to the file object
-			//if (tor.files[i].name == req.params.file_name) {
-			//if (new RegExp(req.params.file_name).test(tor.files[i].name)) {
-			file = tor.files[i];
-			// } else {
-			// 	res.json({
-			// 		error: 'Invalid file name'
-			// 	});
-			// }
-		}
+	// Support range-requests
+	res.setHeader('Content-Type', 'video/webm');
+	res.setHeader('Accept-Ranges', 'bytes');
+
+	// Support DLNA streaming
+	res.setHeader('transferMode.dlna.org', 'Streaming');
+	res.setHeader(
+		'contentFeatures.dlna.org',
+		'DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000'
+	);
+
+	let range = parseRange(size, req.headers.range || '');
+	if (Array.isArray(range)) {
+		range = range[0];
+
+		res.statusCode = 206;
+
+		res.setHeader('Content-Length', range.end - range.start + 1);
+		res.setHeader(
+			'Content-Range',
+			`bytes ${range.start}-${range.end}/${size}`
+		);
+		res.setHeader('Keep-Alive', '6000');
 	} else {
-		fs.readdir(path.join(__dirname + '/tmp'), (err, data) => {
-			for (let i = 0; i < data.length; i++) {
-				if (data[i].startsWith('[')) {
-					file = data[i];
-					break;
-				}
-			}
-		});
-	}
-	//console.log(file);
-	//if (file.path) {
-	let dirPath = path.join(__dirname, '..', 'client', 'src', 'components');
-
-	let filePath = path.join(__dirname + '/tmp/' + file.path);
-
-	//}
-
-	let range = req.headers.range;
-
-	// console.log(range);
-
-	//  Browser doesn't ask for range during first request,
-	//  Just set it to 0
-	if (!range) {
-		range = `0-${file.length}`;
+		// Here range is either -1 or -2
+		res.setHeader('Content-Length', size);
+		range = null;
 	}
 
-	let positions = range.replace(/bytes=/, '').split('-');
-	let start = parseInt(positions[0], 10);
+	const stream = tor.files[0].createReadStream(range);
 
-	let file_size = file.length;
-	let end = positions[1] ? parseInt(positions[1], 10) : file_size - 1;
-	let chunksize = end - start + 1;
-	let head = {
-		'Content-Range': 'bytes ' + start + '-' + end + '/' + file_size,
-		'Accept-Ranges': 'bytes',
-		'Content-Length': chunksize,
-		'Content-Type': 'video/mp4'
+	const close = () => {
+		// when fast-forwarding
+		if (stream) {
+			stream.destroy();
+		}
 	};
 
-	// Status code 206 refers to partial content, we are streaming the file in chunks
-	res.writeHead(206, head);
+	res.once('close', close);
+	res.once('error', close);
+	res.once('finish', close);
 
-	let stream_position = {
-		start: start,
-		end: end
-	};
-	let stream = file.createReadStream(stream_position);
 	stream.pipe(res);
-	// if (stream) {
-	// 	parseSubs(stream_position.end, file, parser);
-	// }
+
+	try {
+		//parseSubs(filePath, range.start);
+	} catch (err) {
+		console.log(`subs error ${err}`);
+	}
 });
 
 router.get('/stats', (req, res, next) => {
@@ -150,34 +127,44 @@ router.get('/stats', (req, res, next) => {
 	res.json(stats);
 });
 
-// async function parseSubsAsync(start, fp) {
-// 	var parser = new MatroskaSubtitles();
+const parseSubs = (filePath, start) => {
+	var parser = new MatroskaSubtitles();
+	parser.once('tracks', tracks => {
+		console.log(tracks);
+	});
 
-// 	// first an array of subtitle track information is emitted
-// 	parser.once('tracks', function(tracks) {
-// 		console.log(tracks);
-// 	});
+	parser.on('subtitle', (sub, tracnNum) => {
+		console.log(sub);
+	});
 
-// 	// afterwards each subtitle is emitted
-// 	parser.on('subtitle', function(subtitle, trackNumber) {
-// 		console.log('Track ' + trackNumber + ':', subtitle);
-// 	});
-// 	await fp.createReadStream().pipe(parser);
-// }
+	let subStream = fs.createReadStream(filePath, {
+		fd: filePath,
+		start: start
+	});
 
-// const parseSubs = (start, fp) => {
-// 	var parser = new MatroskaSubtitles();
+	subStream.pipe(parser);
+};
 
-// 	// first an array of subtitle track information is emitted
-// 	parser.once('tracks', function(tracks) {
-// 		console.log(tracks);
-// 	});
-
-// 	// afterwards each subtitle is emitted
-// 	parser.on('subtitle', function(subtitle, trackNumber) {
-// 		console.log('Track ' + trackNumber + ':', subtitle);
-// 	});
-// 	fp.createReadStream().pipe(parser);
-// };
+/* Helper method to clear the temp directory */
+const clearTmp = () => {
+	return new Promise((resolve, error) => {
+		fs.readdir(path.join(__dirname, 'tmp'), (err, data) => {
+			if (data.length == 0) return;
+			if (err) {
+				console.log(`Couldn't read directory ${err}`);
+				error('Error opening temp folder');
+			}
+			console.log(data);
+			for (let i = 0; i < data.length; i++) {
+				fs.unlink(path.join(__dirname, 'tmp', data[i]), err => {
+					if (err) {
+						error('Error clearing temp folder');
+					}
+					resolve('tmp was cleared');
+				});
+			}
+		});
+	});
+};
 
 module.exports = router;

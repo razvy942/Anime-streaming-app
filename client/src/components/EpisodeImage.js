@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Card, Spinner } from 'react-bootstrap';
 
 import axios from '../axios-instance';
-import { getMalId } from '../helpers';
+import { getMalId } from '../helpers/helpers';
 
 export default class EpisodeImage extends Component {
 	state = {

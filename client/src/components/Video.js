@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Spinner } from 'react-bootstrap';
 
 import Classes from './Video.module.css';
-import Loader from './Loader';
+import Loader from './UI/Loader';
 //import subs from './out.vtt';
 
 class Video extends Component {

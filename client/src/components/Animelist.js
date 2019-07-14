@@ -10,7 +10,7 @@ import {
 } from 'react-bootstrap';
 
 import './Animelist.css';
-import Loader from './Loader';
+import Loader from './UI/Loader';
 import NotFound from './Notfound';
 import EpCard from './EpisodeImage';
 import axios from '../axios-instance';
@@ -59,7 +59,7 @@ export default class Animelist extends Component {
 		console.log(title);
 		axios
 			.get(`add/${magnet}`)
-			.then(this.props.history.push(`/watch/${title}`));
+			.then(res => this.props.history.push(`/watch/${title}`));
 	};
 
 	getNewReleases = () => {
