@@ -13,7 +13,9 @@ router.get('/get-subs', async (req, res, next) => {
 	}
 	fs.readdir(path.join(__dirname, 'tmp'), (err, data) => {
 		if (err) throw err;
-		parseSubs(path.join(__dirname, 'tmp', data[0]));
+		setTimeout(() => {
+			parseSubs(path.join(__dirname, 'tmp', data[0]));
+		}, 3000);
 	});
 	res.json({ msg: 'Subbing started' });
 });

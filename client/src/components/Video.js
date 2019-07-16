@@ -4,7 +4,6 @@ import { Spinner } from 'react-bootstrap';
 import axios from '../axios-instance';
 import Classes from './Video.module.css';
 import Loader from './UI/Loader';
-//import subs from './out.vtt';
 
 class Video extends Component {
 	state = {
@@ -50,31 +49,33 @@ class Video extends Component {
 
 	render() {
 		return (
-			<div className={Classes.main}>
-				{this.state.isReady ? (
-					<video ref={this.vidRef} width="100%" autoPlay controls>
-						<source
-							src={`http://localhost:5000/stream/${
-								this.props.match.params.file
-							}`}
-							type="video/webm"
-						/>
-						<track
-							label="English"
-							kind="subtitles"
-							srcLang="en"
-							default
-						/>
-					</video>
-				) : (
-					<div className={Classes.spinner}>
-						<Spinner animation="border" variant="secondary" />
-						<p>Video is being loaded...</p>
-					</div>
-				)}
-				<button onClick={this.addSubs}>play</button>
-				<button onClick={this.fastForward}>Fast Forward</button>
-			</div>
+			<React.Fragment>
+				<div className={Classes.main}>
+					{this.state.isReady ? (
+						<video ref={this.vidRef} width="100%" autoPlay controls>
+							<source
+								src={`http://localhost:5000/stream/${
+									this.props.match.params.file
+								}`}
+								type="video/webm"
+							/>
+							<track
+								label="English"
+								kind="subtitles"
+								srcLang="en"
+								default
+							/>
+						</video>
+					) : (
+						<div className={Classes.spinner}>
+							<Spinner animation="border" variant="secondary" />
+							<p>Video is being loaded...</p>
+						</div>
+					)}
+					<button onClick={this.addSubs}>play</button>
+					<button onClick={this.fastForward}>Fast Forward</button>
+				</div>
+			</React.Fragment>
 		);
 	}
 }
