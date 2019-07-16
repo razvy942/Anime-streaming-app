@@ -8,10 +8,10 @@ const parseRange = require('range-parser');
 
 const exec = require('child_process').exec;
 
-const client = new WebTorrent();
+let client = new WebTorrent();
 
 // global variable to hold magnet info
-let magnet;
+let magnet = undefined;
 
 let stats = {
 	progress: 0,
@@ -31,22 +31,27 @@ client.on('download', bytes => {
 	};
 });
 
-let previousTorrent = {};
+client.once('download', bytes => {
+	console.log('started download');
+	const tor = client.get(magnet);
+
+	// setTimeout(() => {
+	// 	if (tor.downloaded < tor.files[0].length) {
+	// 		parseSubs(tor.files[0], 0, tor.downloaded);
+	// 	}
+	// }, 3000);
+});
 
 // Adding the magnet file to the download
 router.get('/add/*', async (req, res, next) => {
+	if (magnet != undefined) {
+		client.remove(magnet);
+	}
+
 	magnet = magnetURI.encode(req.query);
 
-	// cleaning  up torrent downloads
-	// for (let tor in previousTorrent) {
-	// 	client.remove(previousTorrent[tor], data =>
-	// 		console.log(`deteleted torrent ${data}`)
-	// 	);
-	// 	delete tor;
-	// }
-
 	try {
-		//await clearTmp();
+		await clearTmp();
 	} catch (err) {
 		console.log(err);
 		//throw err;
@@ -60,7 +65,14 @@ router.get('/add/*', async (req, res, next) => {
 				length: data.length
 			});
 		});
-		previousTorrent.torID = magnet;
+
+		const tor = client.get(magnet);
+
+		//setTimeout(() => {
+		//	if (tor.downloaded < tor.files[0].length) {
+		parseSubs(tor.files[0], 0, tor.files[0].length);
+		//	}
+		//}, 3000);
 		res.status(200);
 		res.json(files);
 	});
@@ -114,12 +126,9 @@ router.get('/stream/:file_name', (req, res, next) => {
 	res.once('finish', close);
 
 	stream.pipe(res);
-
-	try {
-		//parseSubs(filePath, range.start);
-	} catch (err) {
-		console.log(`subs error ${err}`);
-	}
+	// if (tor.downloaded < tor.files[0].length) {
+	// 	parseSubs(tor.files[0], 0, tor.downloaded);
+	// }
 });
 
 router.get('/stats', (req, res, next) => {
@@ -127,20 +136,20 @@ router.get('/stats', (req, res, next) => {
 	res.json(stats);
 });
 
-const parseSubs = (filePath, start) => {
-	var parser = new MatroskaSubtitles();
+const parseSubs = (file, start, end) => {
+	let parser = new MatroskaSubtitles();
 	parser.once('tracks', tracks => {
 		console.log(tracks);
 	});
 
-	parser.on('subtitle', (sub, tracnNum) => {
+	parser.on('subtitle', (sub, trackNum) => {
 		console.log(sub);
+		fs.appendFile('subs.ass', sub.text, err => {
+			if (err) throw err;
+		});
 	});
 
-	let subStream = fs.createReadStream(filePath, {
-		fd: filePath,
-		start: start
-	});
+	let subStream = file.createReadStream();
 
 	subStream.pipe(parser);
 };
@@ -149,7 +158,7 @@ const parseSubs = (filePath, start) => {
 const clearTmp = () => {
 	return new Promise((resolve, error) => {
 		fs.readdir(path.join(__dirname, 'tmp'), (err, data) => {
-			if (data.length == 0) return;
+			if (data.length == 0) resolve();
 			if (err) {
 				console.log(`Couldn't read directory ${err}`);
 				error('Error opening temp folder');

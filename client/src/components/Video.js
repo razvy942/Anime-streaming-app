@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Spinner } from 'react-bootstrap';
 
+import axios from '../axios-instance';
 import Classes from './Video.module.css';
 import Loader from './UI/Loader';
 //import subs from './out.vtt';
@@ -18,6 +19,16 @@ class Video extends Component {
 			console.log(this.props);
 		}, 1500);
 	}
+
+	addSubs = () => {
+		const cue = new VTTCue(
+			638120 / 1000,
+			638220 / 1000,
+			'Hello fellow weeb'
+		);
+		console.log(this.vidRef.current.textTracks);
+		this.vidRef.current.textTracks[0].addCue(cue);
+	};
 
 	toggleVid = () => {
 		let currentTime = this.vidRef.current.currentTime;
@@ -50,7 +61,7 @@ class Video extends Component {
 						<track
 							label="English"
 							kind="subtitles"
-							srclang="en"
+							srcLang="en"
 							default
 						/>
 					</video>
@@ -60,8 +71,8 @@ class Video extends Component {
 						<p>Video is being loaded...</p>
 					</div>
 				)}
-				{/* <button onClick={this.toggleVid}>play</button>
-				<button onClick={this.fastForward}>Fast Forward</button> */}
+				<button onClick={this.addSubs}>play</button>
+				<button onClick={this.fastForward}>Fast Forward</button>
 			</div>
 		);
 	}
