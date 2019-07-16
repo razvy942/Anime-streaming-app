@@ -1,99 +1,102 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
-  Button,
-  Nav,
-  Navbar,
-  Form,
-  FormControl,
-  Card,
-  Dropdown
-} from "react-bootstrap";
+	Button,
+	Nav,
+	Navbar,
+	Form,
+	FormControl,
+	Card,
+	Dropdown
+} from 'react-bootstrap';
 
-import "./Animelist.css";
-import Loader from "./UI/Loader";
-import NotFound from "./Notfound";
-import EpCard from "./EpisodeImage";
-import axios from "../axios-instance";
-import Modal from "./UI/Modal";
-import Login from "./UI/Login";
+import './Animelist.css';
+import Loader from './UI/Loader';
+import NotFound from './Notfound';
+import EpCard from './EpisodeImage';
+import axios from '../axios-instance';
+import Modal from './UI/Modal';
+import Login from './UI/Login';
 
 // https://api.jikan.moe/v3/search/anime?q=${title}&page=1  search only page 1 results are relevant
 
 // https://api.jikan.moe/v3/anime/${id}  gives info about show by id
 
 export default class Animelist extends Component {
-  state = {
-    links: {},
-    currentSearch: "",
-    loaded: false,
-    selectedRes: "1080p",
-    isLoggedIn: false,
-    showLogInModal: false
-  };
+	state = {
+		links: {},
+		currentSearch: '',
+		loaded: false,
+		selectedRes: '1080p',
+		isLoggedIn: false,
+		showLogInModal: false,
+		error: false
+	};
 
-  componentDidMount = () => {
-    this.defaultPage();
-  };
+	componentDidMount = () => {
+		this.defaultPage();
+	};
 
-  defaultPage = () => {
-    this.getLinks("");
-  };
+	defaultPage = () => {
+		this.getLinks('');
+	};
 
-  getLinks = val => {
-    this.setState({ links: {}, loaded: false });
-    axios
-      .get(`api/get-links${val}`)
-      .then(data => {
-        console.log(data);
-        this.setState({
-          links: data.data.HorribleSubs,
-          loaded: true
-        });
-      })
-      .catch(err => {
-        console.log("Error fetching links");
-      });
-  };
+	getLinks = val => {
+		this.setState({ links: {}, loaded: false });
+		axios
+			.get(`api/get-links${val}`)
+			.then(data => {
+				console.log(data);
+				this.setState({
+					links: data.data.HorribleSubs,
+					loaded: true,
+					error: false
+				});
+			})
+			.catch(err => {
+				console.log('Error fetching links');
+				this.setState({ error: true });
+			});
+	};
 
-  addMagnetClickHandler = (magnet, title) => {
-    console.log(title);
-    axios
-      .get(`add/${magnet}`)
-      .then(res => this.props.history.push(`/watch/${title}`));
-  };
+	addMagnetClickHandler = (magnet, title) => {
+		console.log(title);
+		axios
+			.get(`add/${magnet}`)
+			.then(res => this.props.history.push(`/watch/${title}`));
+	};
 
-  getNewReleases = () => {
-    this.getLinks("?search=[HorribleSubs]");
-  };
+	getNewReleases = () => {
+		this.getLinks('?search=[HorribleSubs]');
+	};
 
-  handleSearch = e => {
-    e.preventDefault();
-    this.getLinks(`?search=[HorribleSubs] ${this.state.currentSearch}`);
-  };
+	handleSearch = e => {
+		e.preventDefault();
+		this.getLinks(`?search=[HorribleSubs] ${this.state.currentSearch}`);
+	};
 
-  handleSearchInput = e => {
-    this.setState({
-      currentSearch: e.target.value
-    });
-  };
+	handleSearchInput = e => {
+		this.setState({
+			currentSearch: e.target.value
+		});
+	};
 
-  selectRes = resolution => {
-    this.setState({
-      selectedRes: resolution
-    });
-    this.getNewReleases();
-  };
+	selectRes = resolution => {
+		this.setState({
+			selectedRes: resolution
+		});
+		this.getNewReleases();
+	};
 
-  showLoginModal = () => {
-    this.setState({
-      showLogInModal: !this.state.showLogInModal
-    });
-  };
+	showLoginModal = () => {
+		this.setState({
+			showLogInModal: !this.state.showLogInModal
+		});
+	};
 
-  render() {
-    return (
-      <>
-        {/* {	<nav className="nav-bar">
+	render() {
+		return (
+			<>
+				{/* {	<nav className="nav-bar">
 					<form>
 						<input
 							placeholder="Type the name of the show "
@@ -118,124 +121,151 @@ export default class Animelist extends Component {
 					</ul>
         </nav>} */}
 
-        <Navbar className="fixed-top" bg="dark" variant="dark" expand="lg">
-          <Navbar.Brand
-            style={{ cursor: "pointer" }}
-            onClick={this.defaultPage}
-          >
-            Waifu time
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="mr-auto">
-              <Nav.Link onClick={this.getNewReleases}>New Releases</Nav.Link>
-            </Nav>
-            <Dropdown style={{ marginRight: "10px" }}>
-              <Dropdown.Toggle variant="info" id="dropdown-basic">
-                Select Resolution ({this.state.selectedRes})
-              </Dropdown.Toggle>
+				<Navbar
+					className="fixed-top"
+					bg="dark"
+					variant="dark"
+					expand="lg"
+				>
+					<Navbar.Brand
+						style={{ cursor: 'pointer' }}
+						onClick={this.defaultPage}
+					>
+						Waifu time
+					</Navbar.Brand>
+					<Navbar.Toggle aria-controls="basic-navbar-nav" />
+					<Navbar.Collapse id="basic-navbar-nav">
+						<Nav className="mr-auto">
+							<Nav.Link onClick={this.getNewReleases}>
+								New Releases
+							</Nav.Link>
+						</Nav>
+						<Dropdown style={{ marginRight: '10px' }}>
+							<Dropdown.Toggle variant="info" id="dropdown-basic">
+								Select Resolution ({this.state.selectedRes})
+							</Dropdown.Toggle>
 
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={() => this.selectRes("1080p")}>
-                  1080p
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => this.selectRes("720p")}>
-                  720p
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => this.selectRes("480p")}>
-                  480p
-                </Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-            <Form inline>
-              <FormControl
-                type="text"
-                placeholder="Search"
-                className="mr-sm-2"
-                onChange={this.handleSearchInput}
-              />
-              <Button type="submit" onClick={this.handleSearch}>
-                Search
-              </Button>
-            </Form>
-            {!this.state.isLoggedIn && (
-              <Button onClick={this.showLoginModal}>Login</Button>
-            )}
-          </Navbar.Collapse>
-        </Navbar>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "50px"
-          }}
-        >
-          <Modal
-            show={this.state.showLogInModal}
-            clicked={this.showLoginModal}
-            title="Welcome to waifu time"
-            subtitle="Find new anime to watch"
-          >
-            <Login />
-          </Modal>
-        </div>
-        <div className="episodes container">
-          {this.state.loaded ? (
-            Object.keys(this.state.links).map(key => {
-              return (
-                <Card
-                  className="card-spacing"
-                  style={{
-                    width: "12rem",
-                    margin: "10px"
-                  }}
-                  key={key}
-                >
-                  {/* <Card.Img
+							<Dropdown.Menu>
+								<Dropdown.Item
+									onClick={() => this.selectRes('1080p')}
+								>
+									1080p
+								</Dropdown.Item>
+								<Dropdown.Item
+									onClick={() => this.selectRes('720p')}
+								>
+									720p
+								</Dropdown.Item>
+								<Dropdown.Item
+									onClick={() => this.selectRes('480p')}
+								>
+									480p
+								</Dropdown.Item>
+							</Dropdown.Menu>
+						</Dropdown>
+						<Form inline>
+							<FormControl
+								type="text"
+								placeholder="Search"
+								className="mr-sm-2"
+								onChange={this.handleSearchInput}
+							/>
+							<Button type="submit" onClick={this.handleSearch}>
+								Search
+							</Button>
+						</Form>
+						{!this.state.isLoggedIn && (
+							<Button onClick={this.showLoginModal}>Login</Button>
+						)}
+					</Navbar.Collapse>
+				</Navbar>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						marginTop: '50px'
+					}}
+				>
+					<Modal
+						show={this.state.showLogInModal}
+						clicked={this.showLoginModal}
+						title="Welcome to waifu time"
+						subtitle="Find new anime to watch"
+					>
+						<Login />
+					</Modal>
+				</div>
+				<div className="episodes container">
+					{this.state.loaded ? (
+						Object.keys(this.state.links).map(key => {
+							return (
+								<Card
+									className="card-spacing"
+									style={{
+										width: '12rem',
+										margin: '10px'
+									}}
+									key={key}
+								>
+									{/* <Card.Img
 										variant="top"
 										src="https://66.media.tumblr.com/dfc08dc2cf210659031a3bcc404381cd/tumblr_o70k5ji9a31qla6e4o1_1280.jpg"
                   /> */}
-                  <EpCard title={key} />
-                  <Card.Body>
-                    <Card.Title>{key}</Card.Title>
+									<EpCard title={key} />
+									<Card.Body>
+										<Card.Title>{key}</Card.Title>
 
-                    {Object.keys(this.state.links[key]).map(ep => {
-                      let epLink;
+										{Object.keys(this.state.links[key]).map(
+											ep => {
+												let epLink;
 
-                      try {
-                        epLink = this.state.links[key][ep][
-                          this.state.selectedRes
-                        ][2];
-                      } catch (err) {
-                        epLink = "No data found";
-                      }
+												try {
+													epLink = this.state.links[
+														key
+													][ep][
+														this.state.selectedRes
+													][2];
+												} catch (err) {
+													epLink = 'No data found';
+												}
 
-                      return (
-                        <>
-                          <Button
-                            className="episode-spacing"
-                            onClick={() =>
-                              this.addMagnetClickHandler(epLink, key)
-                            }
-                            key={key + ep}
-                          >
-                            {ep}: {this.state.selectedRes}: click here to watch
-                          </Button>
-                        </>
-                      );
-                    })}
-                  </Card.Body>
-                </Card>
-              );
-            })
-          ) : (
-            <Loader />
-          )}
-          {this.state.loaded && Object.keys(this.state.links).length === 0 && (
-            <NotFound />
-          )}
-        </div>
-      </>
-    );
-  }
+												return (
+													<>
+														<Button
+															className="episode-spacing"
+															onClick={() =>
+																this.addMagnetClickHandler(
+																	epLink,
+																	key
+																)
+															}
+															key={key + ep}
+														>
+															{ep}:{' '}
+															{
+																this.state
+																	.selectedRes
+															}
+															: click here to
+															watch
+														</Button>
+													</>
+												);
+											}
+										)}
+									</Card.Body>
+								</Card>
+							);
+						})
+					) : (
+						<Loader />
+					)}
+					{(this.state.loaded || this.state.error) &&
+						Object.keys(this.state.links).length === 0 && (
+							<NotFound />
+						)}
+				</div>
+			</>
+		);
+	}
 }
