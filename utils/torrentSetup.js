@@ -5,11 +5,10 @@ const magnetURI = require('magnet-uri');
 const fs = require('fs');
 const MatroskaSubtitles = require('matroska-subtitles');
 const parseRange = require('range-parser');
-
 const exec = require('child_process').exec;
 
-let client = new WebTorrent();
-
+let client = require('./client');
+//let client = new WebTorrent();
 // global variable to hold magnet info
 let magnet = undefined;
 
@@ -34,12 +33,6 @@ client.on('download', bytes => {
 client.once('download', bytes => {
 	console.log('started download');
 	const tor = client.get(magnet);
-
-	// setTimeout(() => {
-	// 	if (tor.downloaded < tor.files[0].length) {
-	// 		parseSubs(tor.files[0], 0, tor.downloaded);
-	// 	}
-	// }, 3000);
 });
 
 // Adding the magnet file to the download
@@ -68,11 +61,6 @@ router.get('/add/*', async (req, res, next) => {
 
 		const tor = client.get(magnet);
 
-		//setTimeout(() => {
-		//	if (tor.downloaded < tor.files[0].length) {
-		parseSubs(tor.files[0], 0, tor.files[0].length);
-		//	}
-		//}, 3000);
 		res.status(200);
 		res.json(files);
 	});
@@ -113,7 +101,6 @@ router.get('/stream/:file_name', (req, res, next) => {
 	}
 
 	const stream = tor.files[0].createReadStream(range);
-
 	const close = () => {
 		// when fast-forwarding
 		if (stream) {
@@ -126,9 +113,6 @@ router.get('/stream/:file_name', (req, res, next) => {
 	res.once('finish', close);
 
 	stream.pipe(res);
-	// if (tor.downloaded < tor.files[0].length) {
-	// 	parseSubs(tor.files[0], 0, tor.downloaded);
-	// }
 });
 
 router.get('/stats', (req, res, next) => {
@@ -136,25 +120,8 @@ router.get('/stats', (req, res, next) => {
 	res.json(stats);
 });
 
-const parseSubs = (file, start, end) => {
-	let parser = new MatroskaSubtitles();
-	parser.once('tracks', tracks => {
-		console.log(tracks);
-	});
-
-	parser.on('subtitle', (sub, trackNum) => {
-		console.log(sub);
-		fs.appendFile('subs.ass', sub.text, err => {
-			if (err) throw err;
-		});
-	});
-
-	let subStream = file.createReadStream();
-
-	subStream.pipe(parser);
-};
-
 /* Helper method to clear the temp directory */
+// TODO: make into global helper
 const clearTmp = () => {
 	return new Promise((resolve, error) => {
 		fs.readdir(path.join(__dirname, 'tmp'), (err, data) => {

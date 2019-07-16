@@ -7,8 +7,13 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"client": "cd client && npm start",
 		"build": "npm i && cd client && npm i",
-		"server": "nodemon server.js",
+		"server": "nodemon --ignore 'subs/**' server.js",
 		"dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\""
+	},
+	"nodemonConfig": {
+		"ignore": [
+			"subs"
+		]
 	},
 	"author": "Razvan",
 	"license": "ISC",

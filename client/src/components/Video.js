@@ -17,7 +17,8 @@ class Video extends Component {
 		setTimeout(() => {
 			this.setState({ isReady: true });
 			console.log(this.props);
-		}, 1500);
+			axios.get('/get-subs');
+		}, 2500);
 	}
 
 	addSubs = () => {
