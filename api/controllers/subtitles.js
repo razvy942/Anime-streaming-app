@@ -5,6 +5,7 @@ const stream = require('stream');
 
 let client = require('../utils/client');
 const clearFolder = require('../helpers/clearFolder');
+const createVtt = require('../helpers/createVtt').parseVtt;
 let subStream = null;
 
 module.exports.stopSub = (req, res, next) => {
@@ -57,6 +58,7 @@ module.exports.getTrackInfo = (req, res, next) => {
 	});
 };
 
+// TODO: check when subs are finished, then create a .vtt file
 const parseSubs = file => {
 	let parser = new MatroskaSubtitles();
 	let magnet = client.torrents[0].magnetURI;
@@ -65,20 +67,36 @@ const parseSubs = file => {
 	//let subStream = fl.createReadStream();
 	parser.once('tracks', tracks => {
 		console.log(tracks);
+		fs.writeFileSync(
+			path.join(__dirname, '..', 'helpers', 'subOut.vtt'),
+			'WEBVTT\n\n'
+		);
 	});
 	parser.on('subtitle', (sub, trackNum) => {
-		let obj = {};
-		obj[sub.time] = sub;
-
-		fs.writeFile(`subs\\${sub.time}.json`, JSON.stringify(obj), err => {
-			if (err) throw err;
-			console.log(`subbing`);
-		});
+		//let obj = {};
+		//obj[sub.time] = sub;
+		//let fp = path.join('api', 'subs', 'vidsub.vtt');
+		createVtt(sub);
+		// fs.appendFile(fp, JSON.stringify(sub), err => {
+		// 	if (err) throw err;
+		// 	console.log(`subbing`);
+		// });
 	});
 
 	const sub = () => {
 		subStream = fl.createReadStream();
 		subStream.pipe(parser);
+		subStream.on('end', () => {
+			console.log('DONE');
+			fs.rename(
+				path.join(__dirname, '..', 'helpers', 'subOut.vtt'),
+				path.join(__dirname, '..', '..', 'client', 'src', 'subOut.vtt'),
+				err => {
+					if (err) throw `Couldn't create sub file ${err}`;
+					console.log('done moving file');
+				}
+			);
+		});
 	};
 
 	tor.ready && sub();

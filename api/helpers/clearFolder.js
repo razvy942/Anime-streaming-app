@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
+/** @description Deletes contents of folder */
 const clearFolder = filePath => {
 	return new Promise((resolve, error) => {
 		fs.readdir(filePath, (err, data) => {
@@ -9,7 +10,6 @@ const clearFolder = filePath => {
 				console.log(`Couldn't read directory ${err}`);
 				error('Error opening temp folder');
 			}
-			//console.log(data);
 			for (let i = 0; i < data.length; i++) {
 				fs.unlink(path.join(filePath, data[i]), err => {
 					if (err) {

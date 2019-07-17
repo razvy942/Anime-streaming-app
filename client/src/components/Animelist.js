@@ -43,7 +43,7 @@ export default class Animelist extends Component {
 	getLinks = val => {
 		this.setState({ links: {}, loaded: false });
 		axios
-			.get(`api/get-links${val}`)
+			.get(`/get-links${val}`)
 			.then(data => {
 				console.log(data);
 				this.setState({

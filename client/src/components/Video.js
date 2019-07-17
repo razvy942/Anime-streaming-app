@@ -4,6 +4,8 @@ import { Spinner } from 'react-bootstrap';
 import axios from '../axios-instance';
 import Classes from './Video.module.css';
 
+//import subs from '../subOut.vtt';
+
 class Video extends Component {
 	state = {
 		isReady: false,
@@ -69,7 +71,7 @@ class Video extends Component {
 				.then(res => {
 					console.log(res.data.ready);
 					if (res.data.ready) {
-						axios.get('/get-subs');
+						axios.get('get-subs');
 						clearInterval(this.interval);
 					}
 				});
@@ -116,7 +118,7 @@ class Video extends Component {
 				<div className={Classes.main}>
 					<video ref={this.vidRef} width="100%" autoPlay controls>
 						<source
-							src={`http://localhost:5000/stream/${
+							src={`http://localhost:5000/api/stream/${
 								this.props.match.params.file
 							}`}
 							type="video/webm"
@@ -125,6 +127,7 @@ class Video extends Component {
 							label="English"
 							kind="subtitles"
 							srcLang="en"
+							src={'../subOut.vtt'}
 							default
 						/>
 					</video>
