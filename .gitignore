@@ -1,6 +1,7 @@
 node_modules
 stream.js
-utils/tmp
-subs/*
 .vscode
 subs.ass
+api/utils/tmp/*
+api/helpers/subOut.*
+api/subs/*

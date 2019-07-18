@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Spinner } from 'react-bootstrap';
+import openSocket from 'socket.io-client';
 
 import axios from '../axios-instance';
 import Classes from './Video.module.css';
@@ -8,89 +9,42 @@ import Classes from './Video.module.css';
 
 class Video extends Component {
 	state = {
-		isReady: false,
-		subtitles: [],
-		time: 0
+		isReady: false
 	};
 
-	shouldComponentUpdate(nextProps, nextState) {
-		return (
-			this.state.subtitles === nextState.subtitles &&
-			this.state.time === nextState.time
-		);
-	}
-
 	vidRef = React.createRef();
+	socket;
 
-	addSubs = time => {
-		// const cue = new VTTCue(
-		// 	638120 / 1000,
-		// 	638220 / 1000,
-		// 	'Hello fellow weeb'
-		// );
-		//console.log(this.vidRef.current.textTracks);
-		//this.vidRef.current.textTracks[0].addCue(cue);
-		//let currentTime = this.vidRef.current.currentTime;
-		// console.log(
-		// 	this.vidRef.current !== null && this.vidRef.current.duration
-		// )
-		this.state.subtitles.forEach(sub => {
-			Object.keys(sub).forEach(key => {
-				let cue = new VTTCue(
-					parseInt(key) / 1000,
-					parseInt(key) + parseInt(sub[key].duration) / 1000,
-					sub[key].text
-				);
-				//console.log(key + ', ' + time);
-				//console.log(key == time);
-				this.vidRef.current.textTracks[0].addCue(cue);
-			});
-			//console.log(sub.time + ', ' + time);
-		});
+	addSubs = data => {
+		let cue = new VTTCue(
+			parseInt(data.time) / 1000,
+			(parseInt(data.time) + parseInt(data.duration)) / 1000,
+			data.text
+		);
+		this.vidRef.current.textTracks[0].addCue(cue);
 	};
 
 	componentDidMount() {
-		// setTimeout(() => {
-		// 	//this.setState({ isReady: true });
-		// 	console.log(this.props);
-		// 	axios.get('/get-subs');
-		// }, 2500);
+		setTimeout(() => {
+			//this.setState({ isReady: true });
+			console.log(this.props);
+			axios.get('/get-subs');
+		}, 2500);
 
-		this.interval = setInterval(() => {
-			axios
-				// .get(`/get-track/${this.state.time * 1000}`)
-				// .then(data => {
-				// 	console.log(data);
-				// 	this.setState({
-				// 		subtitles: data.data.subtitle
-				// 	});
-				// 	this.addSubs(0);
-				// })
-				// .catch(err => console.log(err));
-				.get('/is-file-ready')
-				.then(res => {
-					console.log(res.data.ready);
-					if (res.data.ready) {
-						axios.get('get-subs');
-						clearInterval(this.interval);
-					}
-				});
-		}, 1000);
-
-		let vidInterval = setInterval(() => {
-			if (this.vidRef.current !== null) {
-				this.setState({
-					isReady: true
-				});
-				clearInterval(vidInterval);
+		this.socket = openSocket('http://localhost:5000');
+		this.socket.on('subs', data => {
+			console.log(data.text);
+			if (this.vidRef.current) {
+				this.addSubs(data);
+			} else {
+				//console.log('no video ref');
 			}
-		}, 1000);
+		});
 	}
 
 	componentWillUnmount() {
-		clearInterval(this.interval);
-		clearInterval(this.subInterval);
 		// killing streams when video stops playing
+		this.socket.disconnect();
 		axios.get('/stop-subs');
 		axios.get('/kill-stream');
 	}
@@ -108,15 +62,30 @@ class Video extends Component {
 		}
 	};
 
-	fastForward = () => {
-		this.vidRef.current.currentTime += 10;
+	seekingAction = () => {
+		// TODO: check if subs are finished parsing, if not re-send request
+		// First remove all previous cues
+		let cues = this.vidRef.current.textTracks[0].cues;
+		for (let i = 0; i < cues.length; i++) {
+			this.vidRef.current.textTracks[0].removeCue(cues[0]);
+		}
+		axios
+			.get('/stop-subs')
+			.then(res => axios.get('/get-subs'))
+			.catch(axios.get('/get-subs'));
 	};
 
 	render() {
 		return (
 			<React.Fragment>
 				<div className={Classes.main}>
-					<video ref={this.vidRef} width="100%" autoPlay controls>
+					<video
+						ref={this.vidRef}
+						width="100%"
+						autoPlay
+						controls
+						onSeeked={this.seekingAction}
+					>
 						<source
 							src={`http://localhost:5000/api/stream/${
 								this.props.match.params.file
@@ -127,7 +96,6 @@ class Video extends Component {
 							label="English"
 							kind="subtitles"
 							srcLang="en"
-							src={'../subOut.vtt'}
 							default
 						/>
 					</video>

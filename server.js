@@ -13,4 +13,10 @@ app.use('/api', stream);
 app.use('/api', scrapeLinks);
 app.use('/api', subs);
 
-app.listen(5000, () => console.log('Server listening on PORT 5000'));
+const server = app.listen(5000, () =>
+	console.log('Server listening on PORT 5000')
+);
+const io = require('./api/utils/socket').init(server);
+io.on('connection', socket => {
+	console.log(`Client connected!`);
+});

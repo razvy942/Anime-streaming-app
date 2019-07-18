@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const stream = require('stream');
 
+const io = require('../utils/socket');
 let client = require('../utils/client');
 const clearFolder = require('../helpers/clearFolder');
 const createVtt = require('../helpers/createVtt').parseVtt;
@@ -64,38 +65,27 @@ const parseSubs = file => {
 	let magnet = client.torrents[0].magnetURI;
 	let tor = client.get(magnet);
 	let fl = tor.files[0];
-	//let subStream = fl.createReadStream();
+
 	parser.once('tracks', tracks => {
 		console.log(tracks);
-		fs.writeFileSync(
-			path.join(__dirname, '..', 'helpers', 'subOut.vtt'),
-			'WEBVTT\n\n'
-		);
+		console.log('Sub stream started');
+		// fs.writeFileSync(
+		// 	path.join(__dirname, '..', 'helpers', 'subOut.vtt'),
+		// 	'WEBVTT\n\n'
+		// );
 	});
 	parser.on('subtitle', (sub, trackNum) => {
-		//let obj = {};
-		//obj[sub.time] = sub;
-		//let fp = path.join('api', 'subs', 'vidsub.vtt');
-		createVtt(sub);
-		// fs.appendFile(fp, JSON.stringify(sub), err => {
-		// 	if (err) throw err;
-		// 	console.log(`subbing`);
-		// });
+		//createVtt(sub);
+
+		// send subs with socket in real time
+		io.getIO().emit('subs', sub);
 	});
 
 	const sub = () => {
 		subStream = fl.createReadStream();
 		subStream.pipe(parser);
 		subStream.on('end', () => {
-			console.log('DONE');
-			fs.rename(
-				path.join(__dirname, '..', 'helpers', 'subOut.vtt'),
-				path.join(__dirname, '..', '..', 'client', 'src', 'subOut.vtt'),
-				err => {
-					if (err) throw `Couldn't create sub file ${err}`;
-					console.log('done moving file');
-				}
-			);
+			console.log('Sub stream ended');
 		});
 	};
 
