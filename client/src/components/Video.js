@@ -9,13 +9,15 @@ import Classes from './Video.module.css';
 
 class Video extends Component {
 	state = {
-		isReady: false
+		isReady: false,
+		subsStarted: false
 	};
 
 	vidRef = React.createRef();
 	socket;
 
 	addSubs = data => {
+		// TODO: Style subs
 		let cue = new VTTCue(
 			parseInt(data.time) / 1000,
 			(parseInt(data.time) + parseInt(data.duration)) / 1000,
@@ -25,13 +27,11 @@ class Video extends Component {
 	};
 
 	componentDidMount() {
-		setTimeout(() => {
-			//this.setState({ isReady: true });
-			console.log(this.props);
-			axios.get('/get-subs');
-		}, 2500);
-
+		//axios.get('/get-subs');
 		this.socket = openSocket('http://localhost:5000');
+		// this.socket.on('sub-start', () => {
+		// 	axios.get('/get-subs');
+		// })
 		this.socket.on('subs', data => {
 			console.log(data.text);
 			if (this.vidRef.current) {
@@ -62,17 +62,21 @@ class Video extends Component {
 		}
 	};
 
-	seekingAction = () => {
+	start = () => {
 		// TODO: check if subs are finished parsing, if not re-send request
 		// First remove all previous cues
-		let cues = this.vidRef.current.textTracks[0].cues;
-		for (let i = 0; i < cues.length; i++) {
-			this.vidRef.current.textTracks[0].removeCue(cues[0]);
+		// let cues = this.vidRef.current.textTracks[0].cues;
+		// for (let i = 0; i < cues.length; i++) {
+		// 	this.vidRef.current.textTracks[0].removeCue(cues[0]);
+		// }
+		// axios.get('/stop-subs').then(res => axios.get('/get-subs'));
+		if (!this.state.subsStarted) {
+			axios.get('/get-subs').then(res => {
+				this.setState({
+					subsStarted: true
+				});
+			});
 		}
-		axios
-			.get('/stop-subs')
-			.then(res => axios.get('/get-subs'))
-			.catch(axios.get('/get-subs'));
 	};
 
 	render() {
@@ -85,6 +89,7 @@ class Video extends Component {
 						autoPlay
 						controls
 						onSeeked={this.seekingAction}
+						onCanPlay={this.start}
 					>
 						<source
 							src={`http://localhost:5000/api/stream/${

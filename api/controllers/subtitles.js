@@ -7,12 +7,13 @@ const io = require('../utils/socket');
 let client = require('../utils/client');
 const clearFolder = require('../helpers/clearFolder');
 const createVtt = require('../helpers/createVtt').parseVtt;
+const parseSubText = require('../helpers/parseSubs').parseSubs;
 let subStream = null;
 
 module.exports.stopSub = (req, res, next) => {
 	if (subStream) subStream.destroy();
 	console.log('sub stoppped');
-	next();
+	res.json({ msg: 'sub stream killed' });
 };
 
 module.exports.getSubs = async (req, res, next) => {
@@ -78,7 +79,7 @@ const parseSubs = file => {
 		//createVtt(sub);
 
 		// send subs with socket in real time
-		io.getIO().emit('subs', sub);
+		io.getIO().emit('subs', parseSubText(sub));
 	});
 
 	const sub = () => {
@@ -86,6 +87,7 @@ const parseSubs = file => {
 		subStream.pipe(parser);
 		subStream.on('end', () => {
 			console.log('Sub stream ended');
+			io.getIO().emit('done-sub', { sub: 'Finished' });
 		});
 	};
 

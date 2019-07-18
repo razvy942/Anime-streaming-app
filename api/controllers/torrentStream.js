@@ -33,7 +33,7 @@ client.once('download', bytes => {
 module.exports.killStream = (req, res, next) => {
 	if (stream) stream.destroy();
 	console.log('video stream stoppped');
-	next();
+	res.json({ msg: 'Stream killed' });
 };
 
 module.exports.addToDownload = async (req, res, next) => {
@@ -72,19 +72,11 @@ module.exports.addToDownload = async (req, res, next) => {
 
 module.exports.streamFile = (req, res, next) => {
 	const tor = client.get(magnet);
-	//const filePath = path.join(__dirname, 'tmp', tor.files[0].path);
 	const size = tor.files[0].length;
 
-	// Support range-requests
+	// Browser support for chunked content
 	res.setHeader('Content-Type', 'video/webm');
 	res.setHeader('Accept-Ranges', 'bytes');
-
-	// Support DLNA streaming
-	res.setHeader('transferMode.dlna.org', 'Streaming');
-	res.setHeader(
-		'contentFeatures.dlna.org',
-		'DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01700000000000000000000000000000'
-	);
 
 	let range = parseRange(size, req.headers.range || '');
 	if (Array.isArray(range)) {
@@ -105,16 +97,16 @@ module.exports.streamFile = (req, res, next) => {
 	}
 
 	stream = tor.files[0].createReadStream(range);
-	const close = () => {
-		// when fast-forwarding
-		if (stream) {
-			stream.destroy();
-		}
-	};
+	// const close = () => {
+	// 	// when fast-forwarding
+	// 	if (stream) {
+	// 		stream.destroy();
+	// 	}
+	// };
 
-	res.once('close', close);
-	res.once('error', close);
-	res.once('finish', close);
+	// res.once('close', close);
+	// res.once('error', close);
+	// res.once('finish', close);
 
 	stream.pipe(res);
 };
