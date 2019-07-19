@@ -5,12 +5,10 @@ import openSocket from 'socket.io-client';
 import axios from '../axios-instance';
 import Classes from './Video.module.css';
 
-//import subs from '../subOut.vtt';
-
 class Video extends Component {
 	state = {
 		isReady: false,
-		subsStarted: false
+		subsFinished: false
 	};
 
 	vidRef = React.createRef();
@@ -27,23 +25,22 @@ class Video extends Component {
 	};
 
 	componentDidMount() {
-		//axios.get('/get-subs');
 		this.socket = openSocket('http://localhost:5000');
-		// this.socket.on('sub-start', () => {
-		// 	axios.get('/get-subs');
-		// })
 		this.socket.on('subs', data => {
 			console.log(data.text);
 			if (this.vidRef.current) {
 				this.addSubs(data);
-			} else {
-				//console.log('no video ref');
 			}
+		});
+		this.socket.on('done-sub', data => {
+			this.setState({
+				subsFinished: true
+			});
 		});
 	}
 
 	componentWillUnmount() {
-		// killing streams when video stops playing
+		// Cleanup
 		this.socket.disconnect();
 		axios.get('/stop-subs');
 		axios.get('/kill-stream');
@@ -62,20 +59,23 @@ class Video extends Component {
 		}
 	};
 
+	/** If sub-stream not ended, when user fast-forwards the original readstream will lag behind so first clear all cues then re-sub the video
+	 */
 	start = () => {
-		// TODO: check if subs are finished parsing, if not re-send request
-		// First remove all previous cues
-		// let cues = this.vidRef.current.textTracks[0].cues;
-		// for (let i = 0; i < cues.length; i++) {
-		// 	this.vidRef.current.textTracks[0].removeCue(cues[0]);
-		// }
-		// axios.get('/stop-subs').then(res => axios.get('/get-subs'));
-		if (!this.state.subsStarted) {
-			axios.get('/get-subs').then(res => {
-				this.setState({
-					subsStarted: true
+		if (!this.state.subsFinished) {
+			axios
+				.get('/stop-subs')
+				.then(res => {
+					let cues = this.vidRef.current.textTracks[0].cues;
+					// Removing previous cues so we don't get duplicates
+					for (let i = 0; i < cues.length; i++) {
+						this.vidRef.current.textTracks[0].removeCue(cues[0]);
+					}
+					return;
+				})
+				.then(() => {
+					axios.get('/get-subs');
 				});
-			});
 		}
 	};
 

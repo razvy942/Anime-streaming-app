@@ -97,16 +97,16 @@ module.exports.streamFile = (req, res, next) => {
 	}
 
 	stream = tor.files[0].createReadStream(range);
-	// const close = () => {
-	// 	// when fast-forwarding
-	// 	if (stream) {
-	// 		stream.destroy();
-	// 	}
-	// };
+	const close = () => {
+		// when fast-forwarding
+		if (stream) {
+			stream.destroy();
+		}
+	};
 
-	// res.once('close', close);
-	// res.once('error', close);
-	// res.once('finish', close);
+	res.once('close', close);
+	res.once('error', close);
+	res.once('finish', close);
 
 	stream.pipe(res);
 };

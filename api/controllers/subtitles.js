@@ -22,13 +22,11 @@ module.exports.getSubs = async (req, res, next) => {
 	} catch (error) {
 		console.log(error);
 	}
-	fs.readdir(path.join(__dirname, '..', 'utils', 'tmp'), (err, data) => {
-		if (err) throw err;
-		if (data.length === 0) return; //throw "No video file exists (substitles.js)";
-		setTimeout(() => {
-			parseSubs(path.join(__dirname, '..', 'utils', 'tmp', data[0]));
-		}, 3000);
-	});
+
+	setTimeout(() => {
+		parseSubs();
+	}, 2000);
+
 	res.json({ msg: 'Subbing started' });
 };
 
