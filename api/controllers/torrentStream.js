@@ -1,117 +1,117 @@
-const path = require('path');
-const magnetURI = require('magnet-uri');
-const parseRange = require('range-parser');
+const path = require("path");
+const magnetURI = require("magnet-uri");
+const parseRange = require("range-parser");
+const fs = require("fs");
 
-const clearFolder = require('../helpers/clearFolder');
-let client = require('../utils/client');
+const clearFolder = require("../helpers/clearFolder");
+let client = require("../utils/client");
 let magnet = undefined;
 let stream = null;
 
 let stats = {
-	progress: 0,
-	downloadSpeed: 0,
-	ratio: 0
+  progress: 0,
+  downloadSpeed: 0,
+  ratio: 0
 };
 
-client.on('error', err => {
-	console.log(err.message);
+client.on("error", err => {
+  console.log(err.message);
 });
 
-client.on('download', bytes => {
-	stats = {
-		progress: client.progress,
-		downloadSpeed: client.downloadSpeed,
-		ratio: client.ratio
-	};
+client.on("download", bytes => {
+  stats = {
+    progress: client.progress,
+    downloadSpeed: client.downloadSpeed,
+    ratio: client.ratio
+  };
 });
 
-client.once('download', bytes => {
-	console.log('started download');
-	const tor = client.get(magnet);
+client.once("download", bytes => {
+  console.log("started download");
+  const tor = client.get(magnet);
 });
 
 module.exports.killStream = (req, res, next) => {
-	if (stream) stream.destroy();
-	console.log('video stream stoppped');
-	res.json({ msg: 'Stream killed' });
+  if (stream) stream.destroy();
+  console.log("video stream stoppped");
+  res.json({ msg: "Stream killed" });
 };
 
 module.exports.addToDownload = async (req, res, next) => {
-	if (magnet != undefined) {
-		client.remove(magnet);
-	}
+  if (magnet != undefined) {
+    client.remove(magnet);
+  }
+  const videoPath = path.join(__dirname, "..", "utils", "tmp");
+  magnet = magnetURI.encode(req.query);
+  if (!fs.existsSync(videoPath)) {
+    fs.mkdirSync(videoPath);
+  }
+  try {
+    await clearFolder(videoPath);
+  } catch (err) {
+    console.log(err);
+    //throw err;
+  }
+  client.add(
+    magnet,
+    { path: path.join(__dirname, "..", "utils", "tmp") },
+    torrent => {
+      let files = [];
 
-	magnet = magnetURI.encode(req.query);
+      torrent.files.forEach(data => {
+        files.push({
+          name: data.name,
+          length: data.length
+        });
+      });
 
-	try {
-		await clearFolder(path.join(__dirname, '..', 'utils', 'tmp'));
-	} catch (err) {
-		console.log(err);
-		//throw err;
-	}
-	client.add(
-		magnet,
-		{ path: path.join(__dirname, '..', 'utils', 'tmp') },
-		torrent => {
-			let files = [];
+      const tor = client.get(magnet);
 
-			torrent.files.forEach(data => {
-				files.push({
-					name: data.name,
-					length: data.length
-				});
-			});
-
-			const tor = client.get(magnet);
-
-			res.status(200);
-			res.json(files);
-		}
-	);
+      res.status(200);
+      res.json(files);
+    }
+  );
 };
 
 module.exports.streamFile = (req, res, next) => {
-	const tor = client.get(magnet);
-	const size = tor.files[0].length;
+  const tor = client.get(magnet);
+  const size = tor.files[0].length;
 
-	// Browser support for chunked content
-	res.setHeader('Content-Type', 'video/webm');
-	res.setHeader('Accept-Ranges', 'bytes');
+  // Browser support for chunked content
+  res.setHeader("Content-Type", "video/webm");
+  res.setHeader("Accept-Ranges", "bytes");
 
-	let range = parseRange(size, req.headers.range || '');
-	if (Array.isArray(range)) {
-		range = range[0];
+  let range = parseRange(size, req.headers.range || "");
+  if (Array.isArray(range)) {
+    range = range[0];
 
-		res.statusCode = 206;
+    res.statusCode = 206;
 
-		res.setHeader('Content-Length', range.end - range.start + 1);
-		res.setHeader(
-			'Content-Range',
-			`bytes ${range.start}-${range.end}/${size}`
-		);
-		res.setHeader('Keep-Alive', '6000');
-	} else {
-		// Here range is either -1 or -2
-		res.setHeader('Content-Length', size);
-		range = null;
-	}
+    res.setHeader("Content-Length", range.end - range.start + 1);
+    res.setHeader("Content-Range", `bytes ${range.start}-${range.end}/${size}`);
+    res.setHeader("Keep-Alive", "6000");
+  } else {
+    // Here range is either -1 or -2
+    res.setHeader("Content-Length", size);
+    range = null;
+  }
 
-	stream = tor.files[0].createReadStream(range);
-	const close = () => {
-		// when fast-forwarding
-		if (stream) {
-			stream.destroy();
-		}
-	};
+  stream = tor.files[0].createReadStream(range);
+  const close = () => {
+    // when fast-forwarding
+    if (stream) {
+      stream.destroy();
+    }
+  };
 
-	res.once('close', close);
-	res.once('error', close);
-	res.once('finish', close);
+  res.once("close", close);
+  res.once("error", close);
+  res.once("finish", close);
 
-	stream.pipe(res);
+  stream.pipe(res);
 };
 
 module.exports.getStats = (req, res, next) => {
-	res.status(200);
-	res.json(stats);
+  res.status(200);
+  res.json(stats);
 };
