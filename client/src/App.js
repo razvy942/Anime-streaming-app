@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom';
 
 import Video from './components/Video';
 import Animelist from './components/Animelist';
+import CurrentSeason from './components/CurrentSeason';
+import ShowInfo from './components/ShowInfo';
 import './App.css';
 
 function App() {
@@ -11,6 +13,8 @@ function App() {
 			<BrowserRouter>
 				<Switch>
 					<Route path="/" exact component={Animelist} />
+					<Route path="/current-season" component={CurrentSeason} />
+					<Route path="/info/:id" component={ShowInfo} />
 					<Route path="/watch/:file" component={Video} />
 				</Switch>
 			</BrowserRouter>

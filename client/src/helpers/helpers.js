@@ -2,7 +2,7 @@ import axios from '../axios-instance';
 
 export function getMalId(title) {
 	return axios
-		.get(`https://api.jikan.moe/v3/search/anime?q=${title}&page=1`)
+		.get(`http://localhost:9000/public/v3/search/anime?q=${title}&page=1`)
 		.then(res => {
 			return res.data.results[0].mal_id;
 		})

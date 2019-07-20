@@ -12,16 +12,16 @@ let subStream = null;
 
 module.exports.stopSub = (req, res, next) => {
 	if (subStream) subStream.destroy();
-	console.log('sub stoppped');
+	console.log('sub stoppped ');
 	res.json({ msg: 'sub stream killed' });
 };
 
 module.exports.getSubs = async (req, res, next) => {
-	try {
-		await clearFolder(path.join(__dirname, '..', 'subs'));
-	} catch (error) {
-		console.log(error);
-	}
+	// try {
+	// 	await clearFolder(path.join(__dirname, '..', 'subs'));
+	// } catch (error) {
+	// 	console.log(error);
+	// }
 
 	setTimeout(() => {
 		parseSubs();

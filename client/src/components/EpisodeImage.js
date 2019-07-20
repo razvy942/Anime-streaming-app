@@ -16,12 +16,24 @@ export default class EpisodeImage extends Component {
 			this.setState({
 				id: data
 			});
-			axios.get(`https://api.jikan.moe/v3/anime/${data}`).then(res => {
-				console.log(res.data);
-				this.setState({
-					image_url: res.data.image_url
-				});
-			});
+			// settimeout because theres a limit of 2 requests per second
+			setTimeout(() => {
+				axios
+					.get(`http://localhost:9000/public/v3/anime/${data}`)
+					.then(res => {
+						//console.log(res.data);
+						this.setState({
+							image_url: res.data.image_url
+						});
+					})
+					.catch(err => {
+						console.log(`MAL API error ${err}`);
+						this.setState({
+							image_url:
+								'https://i.kym-cdn.com/photos/images/original/001/359/428/77e.gif'
+						});
+					});
+			}, 500);
 		});
 	};
 

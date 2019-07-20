@@ -200,7 +200,7 @@ export default class Animelist extends Component {
 						Object.keys(this.state.links).map(key => {
 							return (
 								<Card
-									className="card-spacing"
+									className={['card-spacing'].join(' ')}
 									style={{
 										width: '12rem',
 										margin: '10px'
