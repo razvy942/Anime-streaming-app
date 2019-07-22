@@ -20,7 +20,7 @@ const ShowInfo = props => {
 				console.log(data.data);
 				//return data.data;
 			})
-			.catch(err => console.log('suck my fkg dick' + err + info));
+			.catch(err => console.log(err));
 	};
 
 	useEffect(() => {
@@ -39,7 +39,11 @@ const ShowInfo = props => {
 						img={info.image_url}
 					/>
 
-					<Information synopsis={info.synopsis} title={info.title} />
+					<Information
+						synopsis={info.synopsis}
+						title={info.title}
+						history={props.history}
+					/>
 				</div>
 			) : (
 				<div
