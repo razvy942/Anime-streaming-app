@@ -7,29 +7,12 @@ import ListSubheader from '@material-ui/core/ListSubheader';
 import IconButton from '@material-ui/core/IconButton';
 import InfoIcon from '@material-ui/icons/Info';
 import { CircularProgress } from '@material-ui/core';
+import { Container } from '@material-ui/core';
 import axios from 'axios';
 
-import ShowList from './UI/ShowList';
+import Spinner from './UI/Spinner';
+import AnimeBox from './UI/AnimeBox';
 import myClasses from './CurrentSeason.module.css';
-
-const useStyles = makeStyles(theme => ({
-	root: {
-		display: 'flex',
-		flexWrap: 'wrap',
-		justifyContent: 'center',
-		alignItems: 'center',
-		overflow: 'hidden',
-		backgroundColor: theme.palette.background.paper
-	},
-	gridList: {
-		width: '100%',
-		height: '100%'
-	},
-
-	icon: {
-		color: 'rgba(255, 255, 255, 0.54)'
-	}
-}));
 
 const CurrentSeason = ({ history }) => {
 	// use these for pagination
@@ -42,7 +25,7 @@ const CurrentSeason = ({ history }) => {
 	const getCurrentSeason = () => {
 		setTimeout(() => {
 			axios.get(apiUrl).then(data => {
-				setLinks(paginateResults(data.data.anime, 9));
+				setLinks(paginateResults(data.data.anime, 10));
 			});
 		}, 500);
 	};
@@ -81,58 +64,34 @@ const CurrentSeason = ({ history }) => {
 		getCurrentSeason();
 	}, []);
 
-	const classes = useStyles();
-
 	return (
-		<div className={myClasses.h}>
-			{links ? (
-				<div className={classes.root}>
-					<GridList cellHeight={180} className={classes.gridList}>
-						<GridListTile
-							key="Subheader"
-							cols={2}
-							style={{ height: 'auto' }}
-						/>
+		<Container maxWidth="lg">
+			<div>
+				{links ? (
+					<div className={myClasses.root}>
 						{page.map(pg =>
 							links[pg].map(link => (
-								<GridListTile
-									onClick={() => {
-										history.push(`/info/${link.mal_id}`);
-									}}
-									style={{
-										width: '280px',
-										height: '200px',
-										margin: '12px',
-										alignSelf: 'flex-start'
-									}}
-									key={link.mal_id}
+								<div
+									onClick={() =>
+										history.push(`/info/${link.mal_id}`)
+									}
 								>
-									<img
-										src={link.image_url}
-										alt={link.title}
-									/>
-									<GridListTileBar
+									<AnimeBox
+										image={link.image_url}
 										title={link.title}
-										subtitle={
-											<span>Rating: {link.score}</span>
-										}
 									/>
-								</GridListTile>
+								</div>
 							))
 						)}
-					</GridList>
-				</div>
-			) : (
-				<div
-					style={{
-						marginTop: '50vh'
-					}}
-				>
-					<CircularProgress />
-				</div>
-			)}
-			{links && <button onClick={changePage}>Load more results</button>}
-		</div>
+					</div>
+				) : (
+					<Spinner />
+				)}
+				{links && (
+					<button onClick={changePage}>Load more results</button>
+				)}
+			</div>
+		</Container>
 	);
 };
 

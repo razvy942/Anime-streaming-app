@@ -1,8 +1,8 @@
-.h {
+.root {
 	transition: all ease-out 0.2s;
 	margin: auto;
 	display: flex;
-	flex-direction: column;
+	flex-wrap: wrap;
 	justify-content: center;
 	align-items: center;
 }

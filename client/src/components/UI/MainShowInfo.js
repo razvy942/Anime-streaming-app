@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Typography, CircularProgress, Button } from '@material-ui/core';
+import {
+	Typography,
+	CircularProgress,
+	Button,
+	Container
+} from '@material-ui/core';
 
 import axios from '../../axios-instance';
 import classes from './MainShowInfo.module.css';
@@ -54,6 +59,7 @@ const Info = ({ synopsis, title, history }) => {
 							<Typography variant="body1" component="p">
 								{info}:{' '}
 								<a
+									href="#"
 									onClick={() =>
 										addMagnet(
 											ep[epNumber][info]['1080p'][2],
