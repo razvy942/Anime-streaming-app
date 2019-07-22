@@ -1,22 +1,14 @@
-.main {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: center;
-  justify-content: center;
-  transition: all ease-out 0.2s;
+.h {
+	transition: all ease-out 0.2s;
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 }
 
-.card {
-  width: 200px;
-  margin: 20px;
-  transition: all ease-out 0.2s;
-}
-
-.card:hover {
-  cursor: pointer;
-  background-color: #fafafa;
-}
-
-.media {
-  height: 250px;
+.listTitle {
+	width: 380px;
+	height: 250px;
+	margin: 5px;
 }

@@ -1,10 +1,12 @@
 import React from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { Container } from '@material-ui/core';
 
 import Video from './components/Video';
 import Animelist from './components/Animelist';
 import CurrentSeason from './components/CurrentSeason';
 import ShowInfo from './components/ShowInfo';
+import Navbar from './components/UI/Navbar';
 import './App.css';
 
 function App() {
