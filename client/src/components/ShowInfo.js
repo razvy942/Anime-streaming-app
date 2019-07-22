@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Spinner } from "react-bootstrap";
 import axios from "axios";
+import { CircularProgress } from "@material-ui/core";
 
 import SideBar from "./UI/SideBar";
 import Info from "./UI/MainShowInfo";
@@ -33,7 +34,13 @@ const ShowInfo = props => {
           <Info title={info.title} synopsis={info.synopsis} />
         </div>
       ) : (
-        <Spinner animation="border" variant="secondary" />
+        <div
+          style={{
+            marginTop: "50vh"
+          }}
+        >
+          <CircularProgress />
+        </div>
       )}
     </div>
   );

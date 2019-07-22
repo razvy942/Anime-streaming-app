@@ -1,16 +1,22 @@
 .main {
-	display: flex;
-	flex-wrap: wrap;
-	align-content: center;
-	justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  transition: all ease-out 0.2s;
 }
 
 .card {
-	box-shadow: 1px 1px 10px #505050;
-	transition: all ease-out 0.1s;
+  width: 200px;
+  margin: 20px;
+  transition: all ease-out 0.2s;
 }
 
 .card:hover {
-	cursor: pointer;
-	transform: scale(1.05);
+  cursor: pointer;
+  background-color: #fafafa;
+}
+
+.media {
+  height: 250px;
 }

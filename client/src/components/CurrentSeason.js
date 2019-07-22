@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Card, Spinner } from "react-bootstrap";
+import {
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  CircularProgress,
+  Typography,
+  Button,
+  Paper
+} from "@material-ui/core";
 
 import axios from "axios";
 import classes from "./CurrentSeason.module.css";
@@ -43,6 +53,7 @@ const CurrentSeason = ({ history }) => {
 
   const changePage = () => {
     console.log("changing page");
+
     let currentPage = page[page.length - 1];
     if (currentPage < pages) {
       setPage([...page, currentPage + 1]);
@@ -54,7 +65,7 @@ const CurrentSeason = ({ history }) => {
   }, []);
 
   return (
-    <div className={["container", classes.main].join(" ")}>
+    <div className={[classes.main].join(" ")}>
       {links ? (
         page.map(pg =>
           links[pg].map(link => (
@@ -62,28 +73,30 @@ const CurrentSeason = ({ history }) => {
               onClick={() => {
                 history.push(`/info/${link.mal_id}`);
               }}
-              className={["card-spacing", classes.card].join(" ")}
-              style={{
-                width: "10rem",
-
-                margin: "18px"
-              }}
+              className={classes.card}
               key={link.mal_id}
             >
-              <Card.Img
-                variant="top"
-                src={link.image_url}
-                style={{ width: "100%" }}
+              <CardMedia
+                title="anime"
+                image={link.image_url}
+                className={classes.media}
               />
-
-              <Card.Title style={{ padding: "10px", textAlign: "center" }}>
-                {link.title}
-              </Card.Title>
+              <CardContent className={classes.content}>
+                <Typography gutterBottom variant="h6" component="p">
+                  {link.title}
+                </Typography>
+              </CardContent>
             </Card>
           ))
         )
       ) : (
-        <Spinner animation="border" variant="secondary" />
+        <div
+          style={{
+            marginTop: "50vh"
+          }}
+        >
+          <CircularProgress />
+        </div>
       )}
       {links && <button onClick={changePage}>Load more results</button>}
     </div>
