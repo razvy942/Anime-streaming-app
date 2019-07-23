@@ -59,13 +59,20 @@ const Info = ({ synopsis, title, history }) => {
 							<Typography variant="body1" component="p">
 								{info}:{' '}
 								<a
-									href="#"
-									onClick={() =>
-										addMagnet(
-											ep[epNumber][info]['1080p'][2],
-											title
-										)
-									}
+									onClick={() => {
+										let magnet;
+										try {
+											addMagnet(
+												ep[epNumber][info]['1080p'][2],
+												title
+											);
+										} catch (err) {
+											addMagnet(
+												ep[epNumber][info]['1080p'][1],
+												title
+											);
+										}
+									}}
 								>
 									<Button className={classes.button}>
 										Watch now

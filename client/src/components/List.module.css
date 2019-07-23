@@ -1,0 +1,14 @@
+.root {
+	transition: all ease-out 0.2s;
+	margin: auto;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+}
+
+.listTitle {
+	width: 380px;
+	height: 250px;
+	margin: 5px;
+}
