@@ -14,16 +14,32 @@
 	z-index: 2;
 }
 
+.interact {
+	display: flex;
+	width: 30%;
+	align-items: center;
+	justify-content: flex-start;
+}
+
 .logo {
-	width: 11%;
+	margin-left: 10px;
 }
 
 .selection {
-	width: 20%;
-	flex: 1;
 }
 
-.search {
-	width: 60%;
-	flex: 1;
+.searchBar {
+	width: 40%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.searchInput {
+	width: 80%;
+}
+.login {
+	display: flex;
+	justify-content: flex-end;
+	width: 30%;
 }

@@ -12,9 +12,7 @@ const ShowInfo = props => {
 
 	const getInfo = () => {
 		return axios
-			.get(
-				`http://localhost:9000/public/v3/anime/${props.match.params.id}`
-			)
+			.get(`https://api.jikan.moe/v3/anime/${props.match.params.id}`)
 			.then(data => {
 				setInfo(data.data);
 				console.log(data.data);

@@ -19,7 +19,7 @@ const Animes = ({ history, searchLink }) => {
 			axios.get(searchLink).then(data => {
 				console.log(data);
 				setLinks(
-					paginateResults(data.data.anime || data.data.results, 10)
+					paginateResults(data.data.anime || data.data.results, 15)
 				);
 			});
 		}, 500);

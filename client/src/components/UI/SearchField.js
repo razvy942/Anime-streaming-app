@@ -6,6 +6,7 @@ import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
+import Button from '@material-ui/core/Button';
 import DirectionsIcon from '@material-ui/icons/Directions';
 
 import axios from '../../axios-instance';
@@ -31,9 +32,16 @@ export default function CustomizedInputBase({ history }) {
 			});
 	};
 
+	const handleKeySearch = e => {
+		if (e.key === 'Enter') {
+			handleSearch();
+		}
+	};
+
 	return (
 		<Paper className={classes.root}>
 			<InputBase
+				onKeyPress={handleKeySearch}
 				value={searchVal}
 				onChange={onChange}
 				className={classes.input}
