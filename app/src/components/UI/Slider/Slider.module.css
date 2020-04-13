@@ -1,0 +1,53 @@
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.themeSwitch {
+  display: inline-block;
+  height: 30px;
+  position: relative;
+  width: 55px;
+}
+
+.themeSwitch input {
+  display: none;
+}
+
+.slider {
+  background-color: #ccc;
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.4s;
+}
+
+.slider:before {
+  background-color: #fff;
+  bottom: 4px;
+  content: '';
+  height: 22px;
+  left: 4px;
+  position: absolute;
+  transition: 0.2s;
+  width: 22px;
+}
+
+input:checked + .slider {
+  background-color: var(--bg-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(26px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}

@@ -1,0 +1,16 @@
+.charactersDisplay {
+  width: 90%;
+  margin: 0 auto;
+  margin-top: 5px;
+}
+
+.characterDisplay {
+}
+
+.characterPortrait {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+}

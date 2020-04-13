@@ -1,0 +1,55 @@
+#portal {
+  position: relative;
+  z-index: 999;
+}
+
+html {
+  transition: 2s;
+}
+
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+
+:root {
+  --primary-color: #fc4d55;
+  --secondary-color: #536390;
+  --font-color: #424242;
+  --bg-color: #f5f5f5;
+  --heading-color: #292922;
+  --shadow-color: #8e8e8e;
+  --box-color: white;
+  --side-bar-color: #121416;
+  --button-color: #121416;
+  --button-color-hover: #090a0b;
+  --button-color-disabled: #767676;
+}
+
+[data-theme='dark'] {
+  --primary-color: #fc4d55;
+  --secondary-color: #818cab;
+  --font-color: #d6d6d6;
+  --bg-color: #282d33;
+  --heading-color: #818cab;
+  --shadow-color: black;
+  --box-color: #1a1a1a;
+  --side-bar-color: #121416;
+  --button-color: #121416;
+  --button-color-hover: #090a0b;
+  --button-color-disabled: #767676;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--font-color);
+  height: 90vh;
+}
+
+h1 {
+  color: var(--font-color);
+}
+
+.App {
+  text-align: center;
+  margin-top: 80px;
+}

@@ -1,0 +1,38 @@
+.ratingsDisplay {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.infoContainer {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.ratings {
+  display: flex;
+  margin-top: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.score {
+  margin-right: 50px;
+  display: flex;
+  flex-direction: column;
+}
+
+.score p {
+  font-size: 3.5rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.rank {
+  margin: 0;
+}
+
+.stats {
+  width: 40%;
+  text-align: start;
+  margin-left: 50px;
+}

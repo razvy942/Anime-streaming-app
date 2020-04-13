@@ -1,0 +1,23 @@
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.episodeBox {
+  width: 80%;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  transition: all ease-in-out 0.08s;
+}
+
+.episodeBox:hover {
+  cursor: pointer;
+  transform: scale(1.1);
+}
+
+.airDate {
+  display: block;
+}

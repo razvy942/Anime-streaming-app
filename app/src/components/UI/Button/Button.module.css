@@ -1,0 +1,24 @@
+.button {
+  width: auto;
+  height: auto;
+  background-color: var(--button-color);
+  padding: 10px;
+  border-radius: 2px;
+  transition: 0.1s;
+  margin: 0 15px 0px 15px;
+  color: white;
+}
+
+.button:hover {
+  background-color: #090a0b;
+  color: var(--primary-color);
+  cursor: pointer;
+}
+
+.disabledButton {
+  color: #767676;
+}
+
+.disabledButton:hover {
+  color: #767676;
+}
