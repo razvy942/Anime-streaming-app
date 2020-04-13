@@ -1,10 +1,11 @@
 # Anime Streaming App
 
-Web app built using Express.js and React. It scrapes websites for anime magnet links then it streams the link in the browser using HTML5 video player. It has a search functionality and video quality options (720p and 1080p). 
+Desktop app built using Electron, React and Python. It scrapes websites for anime torrent then it streams the video inside the app using mpv. It allows for multiple quality settings(480p, 720p, 1080p), keeps track of what anime you are watching, automatically plays the next episode and informs users whenver a new episode is out.  
 
 
 
-![Image Main Page](https://i.imgur.com/2COfqJu.png)
+![Image Main Page](https://i.imgur.com/yZRsPzk.png)
+![Info Page](https://i.imgur.com/5qBQeAy.png)
 
 
 # Build
