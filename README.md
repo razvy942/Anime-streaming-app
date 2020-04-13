@@ -6,7 +6,3 @@ Desktop app built using Electron, React and Python. It scrapes websites for anim
 
 ![Image Main Page](https://i.imgur.com/yZRsPzk.png)
 ![Info Page](https://i.imgur.com/5qBQeAy.png)
-
-
-# Build
-In order to build and test simply open a terminal in the root directory and type ```npm run build``` followed by ```npm run dev```. Please note that this requires nodejs to be installed.
