@@ -2,7 +2,7 @@ from flask import request, jsonify
 import json
 import pprint
 
-from HorribleSubs import bp, pg_db, series_db, parser, nyaa, jikan
+from HorribleSubs import bp, pg_db, series_db, parser, nyaa, jikan, kitsu
 
 
 @bp.route('/horriblesubs/get-all', methods=['GET'])
@@ -45,12 +45,32 @@ def search_horriblesubs():
     show = {show_name: parser.shows_dict.get(show_name, 'not found')}
     return jsonify(show)
 
-@bp.route('/horriblesubs/get-episodes/<mal_id>')
-def get_episodes(mal_id):
-    episodes = jikan.get_episodes(mal_id)
-    return jsonify(episodes)
+# @bp.route('/horriblesubs/get-episodes/<mal_id>')
+# def get_episodes(mal_id):
+#     episodes = jikan.get_episodes(mal_id)
+#     return jsonify(episodes)
 
 @bp.route('/horriblesubs/get-episode/<title>/<episode_number>')
 def get_ep(title, episode_number):
     shows = nyaa.get_magnet(title, episode_number)
     return jsonify(shows)
+
+@bp.route('/horriblesubs/get-info/<title>')
+def get_info(title):
+    kitsu.search(title)
+    data = {}
+    info = kitsu.get_info()
+    # data['episodes'] = kitsu.get_episodes()
+    # data['characters'] = kitsu.get_characters()
+
+    return jsonify(info)
+
+@bp.route('/horriblesubs/get-episodes')
+def get_episodes():
+    episodes = kitsu.get_episodes()
+    return jsonify(episodes)
+
+@bp.route('/horriblesubs/get-characters')
+def get_characters():
+    characters = kitsu.get_characters()
+    return jsonify(characters)

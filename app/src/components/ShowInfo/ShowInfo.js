@@ -29,10 +29,44 @@ const ShowInfo = (props) => {
   const [error, setError] = useState(false);
   const [showEpisodes, setShowEpisodes] = useState(false);
 
+  const kitsuFetchInfo = (title) => {
+    axios
+      .get(`http://127.0.0.1:5000/horriblesubs/get-info/${title}`)
+      .then((res) => {
+        //console.log(res.data);
+        const data = res.data.data;
+        const info = {
+          mal_id: data['id'],
+          image_url: data['attributes']['posterImage']['original'],
+          episodes: data['attributes']['episodeCount'],
+          score: data['attributes']['averageRating'],
+          scores: data['attributes']['ratingFrequencies'],
+          synopsis: data['attributes']['synopsis'],
+          title: data['attributes']['titles']['en_jp'],
+          aired: { string: data['attributes']['endDate'] },
+        };
+        setShowInfo(info);
+      });
+  };
+
   const title = props.match.params.title;
 
   useEffect(() => {
     // getEpisodesInfo(title, setApiShowInfo);
+    // axios
+    //   .get(`http://127.0.0.1:5000/horriblesubs/get-show/${title}`)
+    //   .then((res) => {
+    //     setShowInfo(res.data);
+    //     console.log(res.data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(`Error fetching ${title}'s details: ${err}`);
+    //     setError(true);
+    //   });
+    kitsuFetchInfo(title);
+  }, [title]);
+
+  const jikanFetchInfoFallback = (title) => {
     axios
       .get(`http://127.0.0.1:5000/horriblesubs/get-show/${title}`)
       .then((res) => {
@@ -43,7 +77,22 @@ const ShowInfo = (props) => {
         console.log(`Error fetching ${title}'s details: ${err}`);
         setError(true);
       });
-  }, [title]);
+  };
+
+  /* 
+    image_url,
+    mal_id,
+    episodes: amount of episodes,
+    score,
+    scores: {1: {percentage: int, votes: int}, ...},
+    synopsis, 
+    title,
+    trailer_url,
+    airing: bool,
+    aired: {string: str with air date info},
+    genres: [{name}, ...],
+    characters: [{image_url, name, voice_actors: [{ name }]}, ...]
+  */
 
   return (
     <div>
@@ -60,7 +109,7 @@ const ShowInfo = (props) => {
                 <Stats showInfo={showInfo} />
 
                 <Hr />
-                <CharactersDisplay showInfo={showInfo} />
+                {/* <CharactersDisplay showInfo={showInfo} /> */}
               </>
             ) : (
               <EpisodesListing showInfo={showInfo} />

@@ -59,13 +59,22 @@ export default class Example extends PureComponent {
   data = [];
 
   componentWillMount() {
+    //console.log(this.props.scores);
+    let i = 1;
     for (let score in this.props.scores) {
-      //let obj = {};
-      this.props.scores[score]['name'] = score;
-      this.data.push(this.props.scores[score]);
-      console.log(this.props.scores[score]);
+      if (parseInt(score) % 2 !== 0) continue;
+      let obj = { name: i++, votes: parseInt(this.props.scores[score]) };
+      this.data.push(obj);
     }
-    console.log(this.data);
+    //console.log(this.data);
+
+    // for (let score in this.props.scores) {
+    //   //let obj = {};
+    //   this.props.scores[score]['name'] = score;
+    //   this.data.push(this.props.scores[score]);
+    //   console.log(this.props.scores[score]);
+    // }
+    // console.log(this.data);
   }
 
   render() {

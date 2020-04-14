@@ -4,20 +4,51 @@
 }
 
 .episodeBox {
-  width: 80%;
-  height: 80px;
+  width: 100%;
+  padding: 15px;
+  height: auto;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  justify-content: space-between;
   align-items: flex-start;
   transition: all ease-in-out 0.08s;
 }
 
 .episodeBox:hover {
   cursor: pointer;
-  transform: scale(1.1);
+  transform: scale(1.07);
 }
 
 .airDate {
-  display: block;
+  margin-top: 20px;
+}
+
+.thumbnail {
+  width: 25%;
+}
+
+.epInfo {
+  width: 60%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: start;
+}
+
+.thumbnail img {
+  width: 100%;
+}
+
+.title {
+  font-size: 1.3rem;
+}
+
+.synopsis {
+  line-height: 1.5em;
+  height: 4.5em;
+  overflow: hidden;
+  width: 100%;
+}
+
+.synopsis p {
 }

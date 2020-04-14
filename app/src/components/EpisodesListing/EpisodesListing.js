@@ -7,6 +7,7 @@ import path from 'path';
 import Hr from '../UI/HorizontalLine/HorizontalLine';
 import FullscreenLoad from '../UI/Loading/FullscreenLoad';
 import classes from './EpisodesLIsting.module.css';
+import defaultThumbnail from '../UI/images/not-found-banner.png';
 
 export default function EpisodesListing({ showInfo }) {
   const [episodes, setEpisodes] = useState(null);
@@ -18,12 +19,10 @@ export default function EpisodesListing({ showInfo }) {
 
   useEffect(() => {
     axios
-      .get(
-        `http://localhost:5000/horriblesubs/get-episodes/${showInfo['mal_id']}`
-      )
+      .get(`http://localhost:5000/horriblesubs/get-episodes`)
       .then((res) => {
-        console.log(res);
-        setEpisodes(res.data);
+        console.log(res.data.data);
+        setEpisodes(res.data.data);
       })
       .catch((err) => {
         // TODO: error handling
@@ -58,6 +57,25 @@ export default function EpisodesListing({ showInfo }) {
 
     return () => ipcRenderer.removeAllListeners();
   }, [history, showInfo]);
+
+  const jikanEpisodesFallback = () => {
+    axios
+      .get(
+        `http://localhost:5000/horriblesubs/get-episodes/${showInfo['mal_id']}`
+      )
+      .then((res) => {
+        console.log(res);
+        setEpisodes(res.data);
+      })
+      .catch((err) => {
+        // TODO: error handling
+        console.log(`Error fetching episodes list`);
+      });
+
+    ipcRenderer.on('add-torrent-reply', (event, arg) => {
+      ipcRenderer.send('get-torrent-info', 'give me info');
+    });
+  };
 
   const parseDate = (dateValue) => {
     const date = Date(dateValue);
@@ -108,6 +126,7 @@ export default function EpisodesListing({ showInfo }) {
     setIsLoading(!isLoading);
   };
 
+  // [{ attributes: { airdate, canonicalTitle, number, synopsis, thumbnail: { original } } }]
   return (
     <>
       {errors ? (
@@ -124,16 +143,35 @@ export default function EpisodesListing({ showInfo }) {
                   />
                 )}
                 <div
-                  onClick={() => clickHandler(episode['episode_id'])}
+                  onClick={() => clickHandler(episode['attributes']['number'])}
                   className={classes.episodeBox}
                   key={index}
                 >
-                  {episode['episode_id']}: {episode['title']}
-                  <span className={classes.airDate}>
-                    Aired on {episode['aired']}
-                  </span>
-                  <Hr />
+                  <div className={classes.thumbnail}>
+                    <img
+                      src={
+                        episode['attributes']['thumbnail']
+                          ? episode['attributes']['thumbnail']['original']
+                          : defaultThumbnail
+                      }
+                      alt={`Episode ${episode['attributes']['number']} thumbnail`}
+                    />
+                  </div>
+                  <div className={classes.epInfo}>
+                    <span className={classes.title}>
+                      {episode['attributes']['number']}:{' '}
+                      {episode['attributes']['canonicalTitle']}
+                    </span>
+                    <div className={classes.synopsis}>
+                      {episode['attributes']['synopsis']}
+                    </div>
+                    {'...'}
+                    <span className={classes.airDate}>
+                      Aired on {episode['attributes']['airdate']}
+                    </span>
+                  </div>
                 </div>
+                <Hr />
               </>
             ))
           ) : (

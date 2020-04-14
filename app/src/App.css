@@ -9,6 +9,7 @@ html {
 
 body {
   font-family: 'Noto Sans', sans-serif;
+  line-height: 1.45rem;
 }
 
 :root {
