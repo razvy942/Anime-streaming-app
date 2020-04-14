@@ -12,7 +12,8 @@ class Kitsu:
 
     # perform this first to get the id, then ask for data
     def search(self, title):
-        self.__get_id(title)
+        data = self.__get_id(title)
+        return data
 
     def get_info(self):
         #mal_id = self.__get_id(title)
@@ -53,6 +54,7 @@ class Kitsu:
         res = res.json()
         # data array, usually 1st answer is good but check regardless
         self.mal_id = res['data'][0]['id']
+        return  res['data'][0]
         # return res['data'][0]['id']
 
 'castings?filter[media_type]=Anime&filter[media_id]=7442&filter[is_character]=true&filter[language]=Japanese&include=character,person&sort=-featured'

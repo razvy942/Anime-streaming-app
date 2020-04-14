@@ -34,7 +34,8 @@ const ShowInfo = (props) => {
       .get(`http://127.0.0.1:5000/horriblesubs/get-info/${title}`)
       .then((res) => {
         //console.log(res.data);
-        const data = res.data.data;
+        const data = res.data;
+        console.log(data);
         const info = {
           mal_id: data['id'],
           image_url: data['attributes']['posterImage']['original'],

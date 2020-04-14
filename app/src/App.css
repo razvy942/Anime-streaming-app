@@ -24,6 +24,8 @@ body {
   --button-color: #121416;
   --button-color-hover: #090a0b;
   --button-color-disabled: #767676;
+  --box-loading-bg: #ebebeb;
+  --box-loading-bar-bg: #cecece;
 }
 
 [data-theme='dark'] {
@@ -38,6 +40,8 @@ body {
   --button-color: #121416;
   --button-color-hover: #090a0b;
   --button-color-disabled: #767676;
+  --box-loading-bg: #121416;
+  --box-loading-bar-bg: #24282c;
 }
 
 body {

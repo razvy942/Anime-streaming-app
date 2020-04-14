@@ -5,6 +5,7 @@ import pprint
 import json
 
 #from HorribleSubs import dynamicLoading
+from ApiBindings import kitsu
 
 
 TORRENT_SITE = 'https://xdcc.horriblesubs.info/?search='
@@ -138,11 +139,13 @@ def thread_fun(i):
 
 if __name__ == '__main__':
     horrible_parser = HorribleSubsParser()
+    horrible_parser.get_current_season_releases()
+    pprint.pprint(horrible_parser.current_season)
     
-    with open('series-db.json', 'r') as in_file:
-        db = json.load(in_file)
-        pprint.pprint(db)
-        print(len(db))
+    # with open('series-db.json', 'r') as in_file:
+    #     db = json.load(in_file)
+    #     pprint.pprint(db)
+    #     print(len(db))
 
     # latest_releases_gen = horrible_parser.get_latest()
     # # Getting latest

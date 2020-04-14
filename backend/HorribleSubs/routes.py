@@ -57,9 +57,9 @@ def get_ep(title, episode_number):
 
 @bp.route('/horriblesubs/get-info/<title>')
 def get_info(title):
-    kitsu.search(title)
+    info = kitsu.search(title)
     data = {}
-    info = kitsu.get_info()
+    #info = kitsu.get_info()
     # data['episodes'] = kitsu.get_episodes()
     # data['characters'] = kitsu.get_characters()
 

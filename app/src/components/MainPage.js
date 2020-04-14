@@ -45,6 +45,10 @@ const MainPage = ({ isHomePage, isAllShows }) => {
     }
   };
 
+  const fetchInfo = (title) => {
+    axios.get(`http://localhost:5000/horriblesubs/search/${title}`);
+  };
+
   const paginationElement = (
     <div className={classes.pagination}>
       <Button

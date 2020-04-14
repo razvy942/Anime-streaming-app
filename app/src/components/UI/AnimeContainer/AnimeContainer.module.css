@@ -1,6 +1,6 @@
 .box {
   width: 170px;
-  height: 300px;
+  height: 280px;
   padding: 5px;
   margin: 10px 10px 40px 10px;
   border-radius: 2%;
@@ -9,6 +9,27 @@
   flex-direction: column;
   justify-content: flex-start;
   color: var(--font-color);
+}
+
+.loadingBox {
+  width: 170px;
+  height: 100%;
+  background: var(--box-loading-bg);
+  opacity: 0.7;
+  overflow: hidden;
+  box-shadow: 0px 0px 10px var(--shadow-color);
+}
+
+.animatedBar {
+  width: 1%;
+  height: 100%;
+  background-color: var(--box-loading-bar-bg);
+  opacity: 1;
+  animation-name: slide;
+  animation-duration: 1.5s;
+  box-shadow: 0px 0px 20px 25px var(--box-loading-bar-bg);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
 }
 
 .box:hover {
@@ -21,6 +42,13 @@
   filter: drop-shadow(0px 0px 10px var(--shadow-color));
   object-fit: cover;
   object-position: center;
+  transition: 0.1s;
+  animation-name: fadeIn;
+  animation-duration: 1.5s;
+  animation-timing-function: cubic-bezier(0.28, 0.84, 0.42, 1);
+}
+
+.imageTranparent {
 }
 
 .image:hover {
@@ -31,4 +59,22 @@
 .seriesName {
   text-align: justify;
   font-size: 0.9rem;
+}
+
+@keyframes slide {
+  from {
+    margin-left: -55%;
+  }
+  to {
+    margin-left: 140%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
