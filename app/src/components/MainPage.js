@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
+import axiosInstance from '../helpers/axiosGlobal';
 import axios from 'axios';
 
 import AnimeContainer from './UI/AnimeContainer/AnimeContainer';
+import Placeholder from './UI/Placeholders/MainPage';
 import Button from './UI/Button/Button';
 import Spinner from './UI/Spinners/Spinner';
 import classes from './MainPage.module.css';
 
 const MainPage = ({ isHomePage, isAllShows }) => {
+  //const axios = axiosInstance.get();
+
   const params = useParams();
   const history = useHistory();
   const baseURL = 'http://localhost:5000/horriblesubs';
 
   const [allShows, setAllShows] = useState(null);
   const [currentPage, setCurrentPage] = useState(parseInt(params.page));
+  const [showsArr, setShowsArr] = useState([]);
 
   let url = `${baseURL}/get-all?page=${currentPage}`;
   if (isHomePage) url = `${baseURL}/get-latest`;
@@ -22,7 +27,7 @@ const MainPage = ({ isHomePage, isAllShows }) => {
     axios
       .get(url)
       .then((res) => {
-        console.log(res);
+        console.log(res.data);
         setAllShows(res.data);
         window.scrollTo({
           top: 0,
@@ -43,10 +48,6 @@ const MainPage = ({ isHomePage, isAllShows }) => {
       history.push(`/all-shows/${currentPage - 1}`);
       setCurrentPage(currentPage - 1);
     }
-  };
-
-  const fetchInfo = (title) => {
-    axios.get(`http://localhost:5000/horriblesubs/search/${title}`);
   };
 
   const paginationElement = (
@@ -71,15 +72,15 @@ const MainPage = ({ isHomePage, isAllShows }) => {
             return (
               <div key={index}>
                 <AnimeContainer
-                  seriesTitle={show}
-                  seriesDesc={allShows[show].desc}
-                  seriesImage={allShows[show].img}
+                  title={allShows[show]['attributes']['canonicalTitle']}
+                  image={allShows[show]['attributes']['posterImage']['medium']}
                 />
               </div>
             );
           })
         ) : (
-          <Spinner />
+          // <Spinner />
+          <Placeholder components={15} />
         )}
       </div>
       {isAllShows && paginationElement}

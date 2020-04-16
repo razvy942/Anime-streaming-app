@@ -1,0 +1,34 @@
+.loadingBox {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  overflow: hidden;
+  background-color: rgba(18, 20, 22);
+}
+
+.animatedBar {
+  width: 20%;
+  height: 90%;
+
+  background-color: var(--box-loading-bar-bg);
+  opacity: 0.6;
+  animation-name: slide;
+  animation-duration: 4.1s;
+  box-shadow: 0px 0px 20px 25px var(--box-loading-bar-bg);
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes slide {
+  0% {
+    background-color: rgba(18, 20, 22, 0.2);
+  }
+  50% {
+    background-color: rgba(18, 20, 22, 0.5);
+  }
+  100% {
+    background-color: rgba(18, 20, 22, 0.2);
+  }
+}

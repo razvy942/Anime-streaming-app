@@ -16,19 +16,13 @@ def get_main_page():
 @bp.route('/horriblesubs/get-latest')
 def get_latest_releases():
     parser.get_current_season_releases()
-    with open('series-db.json') as db:
-        latest_db = json.load(db)
-    # Add show information to the show dict
-    info = {}
+    
 
-    for key in parser.current_season:
-        if key in latest_db:
-            info[key] = latest_db[key]
-        else:
-            info[key] = {'desc': 'null', 'img': 'null'}
+    return jsonify(parser.current_season)
 
-    return jsonify(info)
-
+@bp.route('/horriblesubs/get-current-season')
+def get_current_season():
+    pass
 
 @bp.route('/horriblesubs/get-show/<title>')
 def get_show(title):

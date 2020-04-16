@@ -13,7 +13,7 @@ bp = Blueprint("HorribleSubs", __name__)
 # CORS(app, resources={r"/*": {"origins": "*"}})
 
 # TODO: database setup, etc...
-with open('series-db.json') as db:
+with open('kitsu-db.json') as db:
     series_db = json.load(db)
 
 def paginate_series_db(series_db):

@@ -32,6 +32,7 @@ class NyaaPantsu:
 
     # return a dict that will be sent to frontend with the proper magnet for the episode
     def get_magnet(self, name, episode_number):
+        # look on nyaaPantsu first, otherwise look on nyaa.si
         gen = self.search_torrent(name, episode_number)
         search = []
         info_dict = {}

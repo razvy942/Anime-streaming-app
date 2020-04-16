@@ -3,9 +3,12 @@ import requests
 from enum import Enum
 import pprint
 import json
+from concurrent.futures import ThreadPoolExecutor
+import threading
+from difflib import SequenceMatcher
 
 #from HorribleSubs import dynamicLoading
-from ApiBindings import kitsu
+#from ApiBindings import kitsu
 
 
 TORRENT_SITE = 'https://xdcc.horriblesubs.info/?search='
@@ -112,71 +115,78 @@ class HorribleSubsParser:
             else:
                 self.recent_releases[date].append(show_name[len(date):])
 
-    # Using 5 worker threads for faster scraping
-    def __construct_db(self):
+    # Using worker threads for faster scraping
+    def construct_db(self):
         buff = []
         self.get_all_shows()
         buff = [*self.shows_dict.keys()]
-        with ThreadPoolExecutor(max_workers=5) as executor:
+        with ThreadPoolExecutor(max_workers=10) as executor:
             while len(buff) > 0:
                 item = buff.pop()
-                executor.submit(self.get_show_info, self.shows_dict[item], item)
+                executor.submit(self.__db_helper, item)
         # Writing results to json file
-        with open('series-db.json', 'w') as out_db:
+        with open('kitsu-db.json', 'w') as out_db:
             json.dump(self.db, out_db)
 
     def __str__(self):
         return self.recent_releases
 
+    def __db_helper(self, title):
+        url = f'https://kitsu.io/api/edge/anime?filter[text]={title}'
+        res = requests.get(url)
+        if not res.status_code == requests.codes.ok:
+            print(f'{title} could not be fetched')
+            return
+        res = res.json()
+        attrs = res['data']
 
-from concurrent.futures import ThreadPoolExecutor
-import threading
+        for show in attrs:
+            if self.__title_matcher(show, title):
+                self.db[title] = show
+                return
+        
+        # try other pages see if something matches the series we're looking for
+        while not res.get('links', {}).get('next', None) == None:
+            url = res['links']['next']
+            res = requests.get(url)
+            if not res.status_code == requests.codes.ok:
+                print(f'{title} could not be fetched')
+                return
+            res = res.json()
+            attrs = res['data']
 
+            for show in attrs:
+                if self.__title_matcher(show, title):
+                    self.db[title] = show
+                    return
+        
+        if not res.get('links', {}).get('last', None) == None:
+            url = res['links']['last']
+            res = requests.get(url)
+            if not res.status_code == requests.codes.ok:
+                print(f'{title} could not be fetched')
+                return
+            res = res.json()
+            attrs = res['data']
 
-def thread_fun(i):
-    print(i)
-    
+            for show in attrs:
+                if self.__title_matcher(show, title):
+                    self.db[title] = show
+                    return
+            
+    def __title_matcher(self, show, title):
+        canonical_title = show.get('attributes', {}).get('canonicalTitle', 'null')
+        alternate_en_title = show.get('attributes', {}).get('titles', {}).get('en', 'null')
+        alternate_jp_title = show.get('attributes', {}).get('titles', {}).get('en_jp', 'null')
+        if (SequenceMatcher(None, title, canonical_title).ratio() >= 0.85 
+                or SequenceMatcher(None, title, alternate_en_title).ratio() >= 0.85
+                or SequenceMatcher(None, title, alternate_jp_title).ratio() >= 0.85):
+            print(f'{title} got added to db')
+            return True
+        return False
+           
+      
 
 if __name__ == '__main__':
-    horrible_parser = HorribleSubsParser()
-    horrible_parser.get_current_season_releases()
-    pprint.pprint(horrible_parser.current_season)
-    
-    # with open('series-db.json', 'r') as in_file:
-    #     db = json.load(in_file)
-    #     pprint.pprint(db)
-    #     print(len(db))
-
-    # latest_releases_gen = horrible_parser.get_latest()
-    # # Getting latest
-    # next(latest_releases_gen)
-    # pprint.pprint(horrible_parser.recent_releases)
-
-    # user_choice = input('Show more ? y n\n')
-    # while user_choice == 'y':
-    #     try:
-    #         next(latest_releases_gen)
-    #         pprint.pprint(horrible_parser.recent_releases)
-    #         user_choice = input('Show more ? y n\n')
-    #     except:
-    #         print('That\'s all')
-    #         break
-
-    # horrible_parser.get_current_season_releases()
-    # pprint.pprint(horrible_parser.current_season)
-   
-    # print("ALL SHOWS\n")
-    # keys = [*horrible_parser.shows_dict.keys()]
-    # info = horrible_parser.get_show_info(horrible_parser.shows_dict[keys[0]])
-    # pprint.pprint(info)
-    # pprint.pprint(horrible_parser.all_shows)
-    # pprint.pprint(horrible_parser.shows_dict)
-
-   
-
-
-
-
-
-
+    parser = HorribleSubsParser()
     

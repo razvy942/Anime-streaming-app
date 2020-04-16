@@ -4,6 +4,9 @@ import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+import axios from './helpers/axiosGlobal';
+axios.init();
+
 ReactDOM.render(
   <React.StrictMode>
     <App />

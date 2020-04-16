@@ -7,7 +7,8 @@ import Synopsis from '../UI/Synopsis/Synopsis';
 import Stats from '../UI/StatsDisplay/Stats';
 import CharactersDisplay from '../UI/CharactersDisplay/Characters';
 import EpisodesListing from '../EpisodesListing/EpisodesListing';
-import Loading from '../UI/Loading/FullscreenLoad';
+import Spinner from '../UI/Spinners/Spinner';
+import PlaceHolderMainPage from '../UI/Placeholders/MainPage.js';
 import classes from './ShowInfo.module.css';
 
 const ShowInfo = (props) => {
@@ -25,6 +26,7 @@ const ShowInfo = (props) => {
     genres: [{name}, ...],
     characters: [{image_url, name, voice_actors: [{ name }]}, ...]
   */
+
   const [showInfo, setShowInfo] = useState(null);
   const [error, setError] = useState(false);
   const [showEpisodes, setShowEpisodes] = useState(false);
@@ -119,7 +121,8 @@ const ShowInfo = (props) => {
         ) : error ? (
           'There was an error, try again'
         ) : (
-          <Loading message="Fetching info, please wait" />
+          <Spinner />
+          // <PlaceHolderMainPage />
         )}
       </div>
     </div>
