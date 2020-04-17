@@ -34,9 +34,9 @@
     "test": "rescripts test",
     "eject": "react-scripts eject",
     "el": "electron ./",
-    "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron ./\" ",
+    "dev": "concurrently \"yarn start\" \"wait-on http://localhost:3000 && electron ./\" ",
     "postinstall": "electron-builder install-app-deps",
-    "preelectron-pack": "npm run build",
+    "preelectron-pack": "yarn build",
     "electron-pack": "electron-builder build -w"
   },
   "eslintConfig": {

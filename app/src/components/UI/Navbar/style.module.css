@@ -4,24 +4,27 @@
   left: 0;
   width: 100vw;
   height: auto;
+  max-height: 80px;
   background-color: var(--side-bar-color);
   color: var(--font-color);
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.9rem;
 }
 
 .links {
   color: var(--font-color);
-  width: 50%;
+  width: 35%;
   display: flex;
   justify-content: flex-start;
 }
 
 .searchBox {
-  width: 25%;
+  width: 40%;
   display: flex;
+  flex: 1;
   justify-content: flex-start;
 }
 
@@ -104,8 +107,9 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  animation-duration: 0.2s;
+  animation-duration: 0.1s;
   animation-name: fadein;
+  animation-timing-function: ease-in-out;
 }
 
 .closeButton {
@@ -131,4 +135,7 @@ a:hover {
   to {
     background-color: rgba(0, 0, 0, 0.7);
   }
+}
+
+@media (max-width: 1000px) {
 }

@@ -52,3 +52,25 @@
   font-size: 0.95rem;
   text-align: justify;
 }
+
+@media (max-width: 1000px) {
+  .infoContainer {
+    flex-direction: column;
+  }
+
+  .showInfoImg {
+    width: 170px;
+  }
+
+  .description {
+    font-size: 0.9rem;
+    margin: 0;
+    padding: 10px;
+  }
+
+  .rightView {
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+  }
+}

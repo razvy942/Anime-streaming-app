@@ -2,7 +2,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  width: 1100px;
+  align-items: center;
+  width: 75%;
   margin: 0 auto;
 }
 
@@ -19,7 +20,13 @@
   font-size: 1.1rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1068px) {
+  .container {
+    width: 85%;
+  }
+}
+
+@media (max-width: 941px) {
   .container {
     width: 100%;
   }

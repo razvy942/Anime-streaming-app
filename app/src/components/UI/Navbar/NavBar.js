@@ -59,22 +59,22 @@ const NavBar = (props) => {
       <div className={classes.links}>
         <ul>
           <li>
-            <NavLink exact activeClassName={classes.active} to="/">
+            <NavLink exact activeClassName={classes.active} to='/'>
               Home
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to="/all-shows/1">
-              See All shows
+            <NavLink activeClassName={classes.active} to='/all-shows/1'>
+              All shows
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to="/player">
-              Player Navlink
+            <NavLink activeClassName={classes.active} to='/player'>
+              Video Player
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to="/manage-downloads">
+            <NavLink activeClassName={classes.active} to='/manage-downloads'>
               Manage Downloads
             </NavLink>
           </li>
@@ -83,7 +83,7 @@ const NavBar = (props) => {
       <div className={classes.searchBox}>
         <input
           className={classes.searchInput}
-          placeholder="Search for something to watch"
+          placeholder='Search for something to watch'
         ></input>
       </div>
       <div className={classes.profile}>
