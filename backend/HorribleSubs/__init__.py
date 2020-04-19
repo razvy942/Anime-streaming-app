@@ -3,7 +3,7 @@ from flask import Flask, Blueprint
 from flask_cors import CORS, cross_origin
 import json
 from HorribleSubs import horribleParser
-from NyaaPantsu import nyaaApi
+from NyaaPantsu import nyaaApi, nyaaScraper
 from ApiBindings import jikan as jikanApi, kitsu as kitsuApi
 
 
@@ -30,6 +30,7 @@ pg_db = paginate_series_db(series_db)
 
 parser = horribleParser.HorribleSubsParser()
 nyaa = nyaaApi.NyaaPantsu()
+nyaaScrap = nyaaScraper.NyaaScraper()
 jikan = jikanApi.Jikan()
 kitsu = kitsuApi.Kitsu()
 

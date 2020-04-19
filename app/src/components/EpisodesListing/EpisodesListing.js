@@ -93,7 +93,10 @@ export default function EpisodesListing({ showInfo }) {
   };
 
   const getEpisodeMagnet = (epNumber) => {
-    const title = showInfo['title'];
+    let title = showInfo['title'];
+    if (location.state) {
+      title = location.state.horribleTitle;
+    }
 
     axios
       .get(
@@ -101,14 +104,16 @@ export default function EpisodesListing({ showInfo }) {
       )
       .then((res) => {
         const uri = res.data;
+        console.log(uri);
         let resolution = {};
-        uri.forEach((show) => {
-          Object.keys(show).forEach((key) => {
-            resolution['720p'] = show[key]['720p'];
-            resolution['1080p'] = show[key]['1080p'];
-          });
-        });
-
+        // uri.forEach((show) => {
+        //   Object.keys(show).forEach((key) => {
+        //     resolution['720p'] = show[key]['720p'];
+        //     resolution['1080p'] = show[key]['1080p'];
+        //   });
+        // });
+        resolution['720p'] = uri[title]['720p'];
+        resolution['1080p'] = uri[title]['1080p'];
         if (
           resolution['720p'] === undefined &&
           resolution['1080p'] === undefined

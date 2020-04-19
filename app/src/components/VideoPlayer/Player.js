@@ -24,6 +24,7 @@ class Renderer extends React.Component {
   fileCheckerInterval;
 
   checkForFile = () => {
+    if (this.state.isFileCreated) return;
     console.log('checking for file');
     if (!this.props.location.state) {
       console.log('no file specified');
@@ -78,7 +79,7 @@ class Renderer extends React.Component {
 
     this.fileCheckerInterval = setInterval(() => {
       this.checkForFile();
-    }, 1000);
+    }, 2000);
   }
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown, false);

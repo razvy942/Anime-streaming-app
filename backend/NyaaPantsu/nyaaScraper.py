@@ -3,7 +3,7 @@ import re
 from bs4 import BeautifulSoup
 import pprint
 
-import nyaasi
+from NyaaPantsu import nyaasi
 
 class NyaaScraper:
     def __init__(self):
@@ -70,4 +70,5 @@ if __name__ == '__main__':
         title = nyaaParser.parse(result['title'])
         print(title)
 
+    pprint.pprint(results[0])
     

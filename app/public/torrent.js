@@ -20,7 +20,18 @@ const startDownload = (uri, seriesName) => {
     dirHandler.checkIfSeriesOnDisk(seriesName);
     currentTorrent = client.add(
       uri,
-      { path: path.join(__dirname, 'media', seriesName) },
+      {
+        path: path.join(
+          'C:',
+          'Users',
+          'vanos',
+          'OneDrive',
+          'Desktop',
+          'animetest',
+          'media',
+          seriesName
+        ),
+      },
       (torrent) => {
         console.log('client is downloading');
 
