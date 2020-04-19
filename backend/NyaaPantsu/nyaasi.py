@@ -7,51 +7,56 @@ class NyaaSi:
     def __init__(self):
         self.base_url = 'https://nyaa.si/'
         # ignore case
-        self.resolutions = ['480p', '720p', '1080p', 'BD']
+        self.resolutions = ['480p', '720p', '1080p', 'BD', '1280x720', '1920x1080']
 
     # Usual name [Fansub] Show Title - Ep [Resolution].mkv, file name is optional
     # Sometimes S##E## can appear too
     def parse(self, name):
-        titles = ['[EMBER] Kakushigoto S01E03 [1080p] [HEVC WEBRip]',
-                  '[Anime Time] Hachi-nan tte, Sore wa Nai deshou! - 02 [1080p HEVC 10bit x265].mkv',
-                  '[HorribleSubs] Fugou Keiji Balance - UNLIMITED - 02 [1080p].mkv',
-                  '[bonkai77] Fate Zero (ENHANCED) [BD-1080p] [DUAL-AUDIO] [x265] [HEVC] [AAC] [10bit]',
-                  '[bonkai77] Fate Zero (ENHANCED) [BD] [1080p] [DUAL-AUDIO] [x265] [HEVC] [AAC] [10bit]',
-                  '[TaigaSubs]_Toradora!_(2008)_-_01v2_-_Tiger_and_Dragon_[1280x720_H.264_FLAC][1234ABCD].mkv'
-                  ]
         square_bracket_regex = re.compile('\[(.*?)\]')
         paren_regex = re.compile('\((.*?)\)')
+        
+        square_brackets_attrs = re.findall(square_bracket_regex, name) 
+        paren_attrs = re.findall(paren_regex, name)
 
-        square_brackets_attrs = [re.findall(
-            square_bracket_regex, title) for title in titles]
-        paren_attrs = [re.findall(paren_regex, title) for title in titles]
+        sub_group = square_brackets_attrs[0]
+        res = self.extract_resolution(square_brackets_attrs)
+        if len(res) == 0:
+            res = self.extract_resolution(paren_attrs)
+               
+        names = self.extract_name(name, square_bracket_regex, paren_regex)
+        shows = self.extract_episode_number(names)
 
-        # sub_group = square_brackets_attrs[0]
-        res = [self.extract_resolution(attrs)
-               for attrs in square_brackets_attrs]
+        shows[0] = shows[0].strip()
+        if shows[0].endswith('-'):
+            shows[0] = shows[0][0:len(shows[0]) - 1].strip()
 
-        eps = [self.extract_name(
-            ep, square_bracket_regex, paren_regex) for ep in titles]
+        # ret_val = [sub_group, shows[0], shows[1], res[0], shows[2]]
+        ret_val = [sub_group, shows, res]
 
-        # print(f'{eps[1]} released by {sub_group} quality: {res}')
-
-        res2 = self.extract_resolution(
-            ['bonkai77', 'BD-1080p', 'DUAL-AUDIO', 'x265', 'HEVC', 'AAC', '10bit'])
-
-        # print(square_brackets_attrs)
-        # print(paren_attrs)
-        for i in range(len(eps)):
-            print(f'{eps[i]} available in {res[i]}')
-        # print(eps)
-        # print(res)
+        return ret_val
+    
 
     def extract_episode_number(self, title):
-        pass
+        # if show has a season
+        season_regex = re.compile('(S\d\d*)|(Season(\s?)*\d\d*)|$')
+        season_number = re.findall(season_regex, title)[0]
+        season_number = ''.join(a for a in season_number)
+        # season_number = ''.join(re.findall(season_regex, title))
+        title = re.sub(season_regex, '', title)
+        episode_number = ''.join(re.findall(re.compile('(\d\d+)'), title))
+        seasoned_number_regex = re.compile('(E\d\d*)')
+        title = re.sub(seasoned_number_regex, '', title)
+        episode_title = title.replace(episode_number, '')
+       
+        if len(episode_number) == 0:
+            episode_number = 'BATCH'
+        return [episode_title ,episode_number, season_number]
 
     def extract_resolution(self, attrs):
         resolution = [
             res for res in self.resolutions for attr in attrs if res in attr]
         return resolution
+
 
     def extract_name(self, title, square_bracket_regex, paren_regex):
         ep_name = re.sub(square_bracket_regex, '', title)
@@ -60,7 +65,11 @@ class NyaaSi:
         ep_name = re.sub(extension_regex, '', ep_name)
         return ep_name.strip()
 
+    def remove_noise(self, title):
+        # remove stuff like _
+        noise_regex = re.compile('[_]')
+
 
 if __name__ == '__main__':
     nyaa = NyaaSi()
-    nyaa.parse('wtv')
+    nyaa.parse('[LostYears] Attack on Titan Season 4 (48) (WEB 1080p Hi10 AAC) [Dual Audio] (Shingeki no Kyojin)')

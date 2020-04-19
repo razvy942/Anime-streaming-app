@@ -16,6 +16,11 @@
   width: 75%;
 }
 
+.title {
+  text-align: start;
+  line-height: 2.4rem;
+}
+
 .showInfoImg {
   max-width: 250px;
   margin-bottom: 20px;
@@ -47,10 +52,14 @@
 
 .description {
   margin-top: 10px;
-  margin-left: 20px;
+  margin-left: 0px;
   width: 100%;
   font-size: 0.95rem;
   text-align: justify;
+}
+
+.rightView {
+  margin-left: 3%;
 }
 
 @media (max-width: 1000px) {

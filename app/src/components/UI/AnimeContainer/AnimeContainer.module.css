@@ -1,6 +1,6 @@
 .box {
   width: 170px;
-  height: 280px;
+  height: 295px;
   padding: 5px;
   margin: 10px 10px 40px 10px;
   border-radius: 2%;
@@ -57,8 +57,14 @@
 }
 
 .seriesName {
-  text-align: justify;
+  margin-top: 5px;
+  width: 170px;
+  height: 1.5rem;
+  text-align: start;
   font-size: 0.9rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 @keyframes slide {

@@ -21,7 +21,7 @@ const MainPage = ({ isHomePage, isAllShows }) => {
   const [showsArr, setShowsArr] = useState([]);
 
   let url = `${baseURL}/get-all?page=${currentPage}`;
-  if (isHomePage) url = `${baseURL}/get-latest`;
+  if (isHomePage) url = `${baseURL}/get-current-season`;
 
   useEffect(() => {
     axios
@@ -63,17 +63,32 @@ const MainPage = ({ isHomePage, isAllShows }) => {
     </div>
   );
 
+  const parseInfo = (showInfo) => {
+    let title,
+      image = {};
+
+    if (showInfo.attributes) {
+      title = showInfo.attributes.canonicalTitle;
+      image = showInfo.attributes.posterImage.medium;
+    } else {
+      title = 'null';
+      image = 'null';
+    }
+
+    return { title, image };
+  };
+
   return (
     <div>
-      <h1>{isHomePage ? 'Latest Releases' : 'All Shows'} </h1>
+      <h1>{isHomePage ? 'Currently Airing' : 'All Shows'} </h1>
       <div className={classes.container}>
         {allShows ? (
           Object.keys(allShows).map((show, index) => {
             return (
               <div key={index}>
                 <AnimeContainer
-                  title={allShows[show]['attributes']['canonicalTitle']}
-                  image={allShows[show]['attributes']['posterImage']['medium']}
+                  horribleTitle={show}
+                  info={parseInfo(allShows[show])}
                 />
               </div>
             );

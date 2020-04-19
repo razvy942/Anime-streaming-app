@@ -5,22 +5,29 @@ import AnimatedBox from '../AnimatedLoadingBox/AnimatedLoadingBox';
 import PlaceHolder from '../Placeholders/MainPage';
 import classes from './AnimeContainer.module.css';
 
-const AnimeContainer = ({ title, image }) => {
+const AnimeContainer = ({ info, horribleTitle }) => {
+  const { title, image } = info;
   return (
-    <Link to={`/show/${title}`}>
-      <div className={classes.box}>
-        {/* <p>{seriesDesc}</p> */}
+    <div className={classes.box}>
+      {/* <p>{seriesDesc}</p> */}
 
-        <>
-          <img
-            className={classes.image}
-            src={image}
-            alt={`Cover art for ${title}`}
-          />
-          <p className={classes.seriesName}>{title}</p>
-        </>
-      </div>
-    </Link>
+      <Link
+        to={{
+          pathname: `/show/${encodeURIComponent(title)}`,
+          state: {
+            horribleTitle: horribleTitle,
+          },
+        }}
+      >
+        <img
+          className={classes.image}
+          src={image}
+          alt={`Cover art for ${title}`}
+        />
+      </Link>
+
+      <div className={classes.seriesName}>{title}</div>
+    </div>
   );
 };
 

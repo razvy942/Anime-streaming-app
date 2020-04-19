@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { ipcRenderer } from 'electron';
 import path from 'path';
@@ -16,8 +16,10 @@ export default function EpisodesListing({ showInfo }) {
   const [errors, setErrors] = useState(null);
 
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
+    console.log(showInfo['title']);
     axios
       .get(`http://localhost:5000/horriblesubs/get-episodes`)
       .then((res) => {
@@ -83,7 +85,11 @@ export default function EpisodesListing({ showInfo }) {
   };
 
   const handleDownload = (magnetURI) => {
-    ipcRenderer.send('add-torrent', [magnetURI, showInfo['title']]);
+    let title = showInfo['title'];
+    if (location.state) {
+      title = location.state.horribleTitle;
+    }
+    ipcRenderer.send('add-torrent', [magnetURI, title]);
   };
 
   const getEpisodeMagnet = (epNumber) => {
