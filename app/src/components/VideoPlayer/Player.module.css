@@ -4,19 +4,21 @@ body,
   margin: 0;
   height: 100%;
 }
+
 .container {
   display: flex;
   flex-direction: column;
-  position: relative;
-  top: -27px;
-  height: 93.2vh;
+
+  height: 100%;
+  width: 100%;
   justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .controlsContainer {
-  position: absolute;
+  position: relative;
   left: 1vw;
-  bottom: 30px;
+  bottom: 60px;
   width: 98vw;
   background: var(--side-bar-color);
   border-radius: 10px;
@@ -26,7 +28,7 @@ body,
 }
 
 .controlsContainerHidden {
-  bottom: 0px;
+  bottom: 40px;
   opacity: 0;
 }
 
@@ -71,6 +73,22 @@ body,
 
 .controls:hover {
   opacity: 1;
+}
+
+.time {
+  margin: 0 10px 0 10px;
+  letter-spacing: 0.5px;
+}
+
+.showTitle {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  left: 50px;
+}
+
+.hideTitle {
+  display: none;
 }
 
 .seek {

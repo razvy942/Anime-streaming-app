@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 
-import AnimatedBox from '../AnimatedLoadingBox/AnimatedLoadingBox';
-import PlaceHolder from '../Placeholders/MainPage';
 import classes from './AnimeContainer.module.css';
 
 const AnimeContainer = ({ info, horribleTitle }) => {

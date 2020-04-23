@@ -99,6 +99,7 @@ class ReactMPV extends React.PureComponent {
    */
   keypress({ key, shiftKey, ctrlKey, altKey }) {
     // Don't need modifier events.
+    console.log(key);
     if (
       [
         'Escape',
@@ -141,6 +142,11 @@ class ReactMPV extends React.PureComponent {
       ].includes(key)
     )
       return;
+
+    if (['p', 'P'].includes(key)) {
+      this.props.togglePause();
+      return;
+    }
 
     this.command('keypress', key);
   }

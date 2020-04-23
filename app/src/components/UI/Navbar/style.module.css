@@ -3,8 +3,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: auto;
-  max-height: 80px;
+  height: 60px;
   background-color: var(--side-bar-color);
   color: var(--font-color);
   z-index: 100;

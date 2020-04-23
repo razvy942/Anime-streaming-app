@@ -8,7 +8,7 @@ export default function MainPage({ components }) {
   // 15 elements shown per page
   for (let i = 0; i < components; i++) {
     elems.push(
-      <div>
+      <div key={i}>
         <div className={classes.animeBoxPlaceholder}></div>
         <p className={classes.textPlaceholder}></p>
       </div>

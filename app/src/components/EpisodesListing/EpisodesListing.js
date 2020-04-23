@@ -39,7 +39,7 @@ export default function EpisodesListing({ showInfo }) {
         setErrors('Couldnt obtain torrent');
         return;
       }
-      history.push('/player', { path: videoPath });
+      history.push('/player', { path: videoPath, epTitle: arg.name });
     });
 
     return () => ipcRenderer.removeAllListeners();

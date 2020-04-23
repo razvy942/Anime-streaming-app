@@ -14,26 +14,70 @@ class Renderer extends React.Component {
   state = {
     pause: true,
     'time-pos': 0,
+    currentTime: 0,
     duration: 0,
+    durationStamp: 0,
     fullscreen: false,
-    isFileCreated: true,
+    isFileCreated: false,
     showControls: false,
   };
 
   mpv = null;
   fileCheckerInterval;
+  createTimeStampInterval;
+
+  convertTimeStamp = (totalDuration = false) => {
+    let timeStamp;
+    if (totalDuration) {
+      timeStamp = parseInt(this.state.duration) / 60;
+    } else {
+      timeStamp = parseInt(this.state['time-pos']) / 60;
+    }
+
+    let minutes = Math.floor(timeStamp);
+    let hours = 0;
+    if (minutes > 1 && minutes % 60 === 0) {
+      hours += 1;
+      minutes -= 60;
+      timeStamp -= 60;
+    }
+
+    if (hours.toString().length < 2) {
+      hours = `0${hours}`;
+    }
+
+    if (minutes.toString().length < 2) {
+      minutes = `0${minutes}`;
+    }
+
+    let seconds;
+    if (totalDuration) {
+      seconds = parseInt(this.state.duration) % 60;
+    } else {
+      seconds = parseInt(this.state['time-pos']) % 60;
+    }
+
+    if (seconds.toString().length < 2) {
+      seconds = `0${seconds}`;
+    }
+
+    if (totalDuration) {
+      this.setState({
+        durationStamp: `${hours}:${minutes}:${seconds}`,
+      });
+    } else {
+      this.setState({
+        currentTime: `${hours}:${minutes}:${seconds}`,
+      });
+    }
+  };
 
   checkForFile = () => {
-    if (this.state.isFileCreated) return;
-    console.log('checking for file');
-    if (!this.props.location.state) {
-      console.log('no file specified');
+    if (this.state.isFileCreated) {
       clearInterval(this.fileCheckerInterval);
-      this.setState({
-        isFileCreated: true,
-      });
       return;
     }
+    console.log('checking for file');
     console.log(this.props.location.state.path);
     fs.access(this.props.location.state.path, (err) => {
       if (err) {
@@ -52,19 +96,33 @@ class Renderer extends React.Component {
     console.log(path.join(__dirname, '.'));
     console.log(this.props);
 
-    // this.fileCheckerInterval = setInterval(() => {
-    //   this.checkForFile();
-    // }, 2000);
+    if (this.props.location.state) {
+      this.fileCheckerInterval = setInterval(() => {
+        this.checkForFile();
+      }, 2000);
+    } else {
+      this.setState({
+        isFileCreated: true,
+      });
+    }
+    this.createTimeStampInterval = setInterval(() => {
+      this.convertTimeStamp();
+      this.convertTimeStamp(true);
+    }, 200);
   }
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown, false);
     clearInterval(this.fileCheckerInterval);
+    clearInterval(this.createTimeStampInterval);
   }
 
   handleKeyDown = (e) => {
     e.preventDefault();
     if (e.key === 'f' || (e.key === 'Escape' && this.state.fullscreen)) {
       this.toggleFullscreen();
+    } else if (e.key === ' ') {
+      this.setState({ pause: !this.state.pause });
+      this.mpv.property('pause', this.state.pause);
     } else if (this.state.duration) {
       this.mpv.keypress(e);
     }
@@ -81,7 +139,6 @@ class Renderer extends React.Component {
       vidPath = this.props.location.state.path;
     }
     this.mpv.command('loadfile', vidPath);
-
     setTimeout(() => {
       this.mpv.property('pause', false);
     }, 500);
@@ -116,7 +173,7 @@ class Renderer extends React.Component {
   };
 
   togglePause = (e) => {
-    e.target.blur();
+    // e.target.blur();
     if (!this.state.duration) return;
     this.mpv.property('pause', !this.state.pause);
   };
@@ -132,7 +189,11 @@ class Renderer extends React.Component {
   handleSeek = (e) => {
     e.target.blur();
     const timePos = +e.target.value;
+    console.log(this.state.duration);
+    console.log(timePos);
+    // const currentTime = this.convertTimeStamp(timePos);
     this.setState({ 'time-pos': timePos });
+
     this.mpv.property('time-pos', timePos);
   };
   handleSeekMouseUp = () => {
@@ -176,81 +237,107 @@ class Renderer extends React.Component {
     });
   };
 
-  // handleFullScreen = () => {
-  //   if (this.state.fullscreen) {
-  //     document.webkitExitFullscreen();
-  //     this.setState({
-  //       fullscreen: false,
-  //     });
-  //   } else {
-  //     this.nodeRef.current.webkitRequestFullscreen();
-  //     this.setState({
-  //       fullscreen: true,
-  //     });
-  //   }
-  // };
+  clickCount = 0;
+  clickTimeout;
+
+  handleClick = (e) => {
+    e.target.blur();
+    clearTimeout(this.clickTimeout);
+    this.clickCount += 1;
+    this.clickTimeout = setTimeout(() => {
+      if (this.clickCount > 1) {
+        this.toggleFullscreen();
+        console.log(e);
+      } else {
+        this.togglePause(e);
+      }
+      this.clickCount = 0;
+    }, 200);
+  };
 
   render() {
     return (
-      <div
-        ref={this.nodeRef}
-        onKeyDown={this.handleKeyDown}
-        onMouseMove={this.handleMouseIn}
-        onMouseLeave={this.handleMouseOut}
-        className={classes.container}
-      >
-        {this.state.isFileCreated ? (
-          <>
-            <ReactMPV
-              className={classes.player}
-              onReady={this.handleMPVReady}
-              onPropertyChange={this.handlePropertyChange}
-              onMouseDown={this.togglePause}
-            />
-
-            <div
-              className={
-                this.state.showControls
-                  ? classes.controlsContainer
-                  : [
-                      classes.controlsContainer,
-                      classes.controlsContainerHidden,
-                    ].join(' ')
-              }
-            >
-              <div className={classes.controls}>
-                <button className={classes.control} onClick={this.togglePause}>
-                  {this.state.pause ? '▶' : '❚❚'}
-                </button>
-                <button className={classes.control} onClick={this.handleStop}>
-                  ■
-                </button>
-                <input
-                  className={classes.seek}
-                  type="range"
-                  min={0}
-                  step={0.1}
-                  max={this.state.duration}
-                  value={this.state['time-pos']}
-                  onChange={this.handleSeek}
-                  onMouseDown={this.handleSeekMouseDown}
-                  onMouseUp={this.handleSeekMouseUp}
+      <div style={{ height: '90vh', marginTop: '-20px' }}>
+        <div style={{ height: '75%' }}>
+          <div
+            ref={this.nodeRef}
+            onMouseMove={this.handleMouseIn}
+            onMouseLeave={this.handleMouseOut}
+            className={classes.container}
+          >
+            {this.state.isFileCreated ? (
+              <>
+                <ReactMPV
+                  className={classes.player}
+                  onReady={this.handleMPVReady}
+                  onPropertyChange={this.handlePropertyChange}
+                  onMouseDown={(e) => this.handleClick(e)}
+                  togglePause={this.togglePause}
                 />
-                <button className={classes.control} onClick={this.handleLoad}>
-                  ⏏
-                </button>
-                <button
-                  className={classes.control}
-                  onClick={this.handleFullScreenToggle}
+
+                <div
+                  className={
+                    this.state.showControls
+                      ? classes.controlsContainer
+                      : [
+                          classes.controlsContainer,
+                          classes.controlsContainerHidden,
+                        ].join(' ')
+                  }
                 >
-                  full
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <Spinner />
-        )}
+                  <div className={classes.controls}>
+                    <button
+                      className={classes.control}
+                      onClick={this.togglePause}
+                    >
+                      {this.state.pause ? '▶' : '❚❚'}
+                    </button>
+                    <button
+                      className={classes.control}
+                      onClick={this.handleStop}
+                    >
+                      ■
+                    </button>
+                    <span className={classes.time}>
+                      {this.state.currentTime}
+                    </span>
+                    <input
+                      className={classes.seek}
+                      type="range"
+                      min={0}
+                      step={0.1}
+                      max={this.state.duration}
+                      value={this.state['time-pos']}
+                      onChange={this.handleSeek}
+                      onMouseDown={this.handleSeekMouseDown}
+                      onMouseUp={this.handleSeekMouseUp}
+                    />
+                    <span className={classes.time}>
+                      {this.state.durationStamp}
+                    </span>
+                    <button
+                      className={classes.control}
+                      onClick={this.handleLoad}
+                    >
+                      ⏏
+                    </button>
+                    <button
+                      className={classes.control}
+                      onClick={this.handleFullScreenToggle}
+                    >
+                      full
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <Spinner />
+            )}
+          </div>
+        </div>
+        <div className={classes.showInfo}>
+          {this.props.location.state && this.props.location.state.epTitle}
+        </div>
       </div>
     );
   }
