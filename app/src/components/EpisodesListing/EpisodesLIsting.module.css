@@ -10,7 +10,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  transition: all ease-in-out 0.08s;
+  transition: all ease-in-out 0.02s;
 }
 
 .episodeBox:hover {

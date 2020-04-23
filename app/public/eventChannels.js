@@ -4,7 +4,8 @@ const torrent = require('./torrent');
 ipcMain.on('add-torrent', (event, arg) => {
   console.log('hello i am adding new torrent: ' + arg[0]);
   torrent.startDownload(arg[0], arg[1]);
-  event.reply('add-torrent-reply', 'TORRENT ADDED!!!!');
+
+  torrent.getInfo(arg[0], event);
 });
 
 ipcMain.on('remove-torrent', (event, arg) => {
@@ -21,6 +22,6 @@ ipcMain.on('resume-torrent', (event, arg) => {
 });
 
 ipcMain.on('get-torrent-info', (event, arg) => {
-  const info = torrent.getInfo();
+  const info = torrent.getInfoAll(arg);
   event.reply('get-torrent-info-reply', info);
 });

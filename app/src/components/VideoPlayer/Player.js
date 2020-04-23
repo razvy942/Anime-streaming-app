@@ -16,7 +16,7 @@ class Renderer extends React.Component {
     'time-pos': 0,
     duration: 0,
     fullscreen: false,
-    isFileCreated: false,
+    isFileCreated: true,
     showControls: false,
   };
 
@@ -47,39 +47,14 @@ class Renderer extends React.Component {
     });
   };
 
-  doesFileExist = (fileName) => {
-    fs.access(fileName, (err) => {
-      if (err) return false;
-    });
-    return true;
-  };
-
-  checkForFileb = () => {
-    console.log('checking for file');
-    if (!this.props.location.state) {
-      console.log('no file specified');
-      this.setState({
-        isFileCreated: true,
-      });
-      return;
-    }
-
-    let fileExists = this.doesFileExist(this.props.location.state.path);
-
-    while (!fileExists) {
-      console.log('still checking');
-      fileExists = this.doesFileExist(this.props.location.state.path);
-    }
-  };
-
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown, false);
     console.log(path.join(__dirname, '.'));
     console.log(this.props);
 
-    this.fileCheckerInterval = setInterval(() => {
-      this.checkForFile();
-    }, 2000);
+    // this.fileCheckerInterval = setInterval(() => {
+    //   this.checkForFile();
+    // }, 2000);
   }
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyDown, false);

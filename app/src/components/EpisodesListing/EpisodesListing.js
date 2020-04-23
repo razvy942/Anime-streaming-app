@@ -12,8 +12,8 @@ import defaultThumbnail from '../UI/images/not-found-banner.png';
 export default function EpisodesListing({ showInfo }) {
   const [episodes, setEpisodes] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [magnetURI, setMagnetURI] = useState(null);
   const [errors, setErrors] = useState(null);
+  const [currentResolution, setCurrentResolution] = useState('720p');
 
   const history = useHistory();
   const location = useLocation();
@@ -32,57 +32,18 @@ export default function EpisodesListing({ showInfo }) {
       });
 
     ipcRenderer.on('add-torrent-reply', (event, arg) => {
-      ipcRenderer.send('get-torrent-info', 'give me info');
-    });
-
-    ipcRenderer.on('get-torrent-info-reply', (event, arg) => {
-      const keys = Object.keys(arg);
-      // const videoPath =
-      //   arg[keys[keys.length - 1]].path + '/' + arg[keys[keys.length - 1]].name;
-      console.log(keys);
-
-      console.log(arg);
-
       let videoPath;
       try {
-        videoPath = path.join(
-          arg[keys[keys.length - 1]].path,
-          arg[keys[keys.length - 1]].name
-        );
+        videoPath = path.join(arg.path, arg.name);
       } catch {
         setErrors('Couldnt obtain torrent');
         return;
       }
-      console.log(videoPath);
       history.push('/player', { path: videoPath });
     });
 
     return () => ipcRenderer.removeAllListeners();
   }, [history, showInfo]);
-
-  const jikanEpisodesFallback = () => {
-    axios
-      .get(
-        `http://localhost:5000/horriblesubs/get-episodes/${showInfo['mal_id']}`
-      )
-      .then((res) => {
-        console.log(res);
-        setEpisodes(res.data);
-      })
-      .catch((err) => {
-        // TODO: error handling
-        console.log(`Error fetching episodes list`);
-      });
-
-    ipcRenderer.on('add-torrent-reply', (event, arg) => {
-      ipcRenderer.send('get-torrent-info', 'give me info');
-    });
-  };
-
-  const parseDate = (dateValue) => {
-    const date = Date(dateValue);
-    // TODO: Later
-  };
 
   const handleDownload = (magnetURI) => {
     let title = showInfo['title'];
@@ -103,24 +64,20 @@ export default function EpisodesListing({ showInfo }) {
         `http://127.0.0.1:5000/horriblesubs/get-episode/${title}/${epNumber}`
       )
       .then((res) => {
-        const uri = res.data;
-        console.log(uri);
+        const data = res.data;
+        console.log(data);
         let resolution = {};
-        // uri.forEach((show) => {
-        //   Object.keys(show).forEach((key) => {
-        //     resolution['720p'] = show[key]['720p'];
-        //     resolution['1080p'] = show[key]['1080p'];
-        //   });
-        // });
-        resolution['720p'] = uri[title]['720p'];
-        resolution['1080p'] = uri[title]['1080p'];
+
+        resolution['720p'] = data[title]['720p'];
+        resolution['1080p'] = data[title]['1080p'];
         if (
           resolution['720p'] === undefined &&
           resolution['1080p'] === undefined
         ) {
-          setMagnetURI(null);
+          // handle errors
         }
-        // setMagnetURI(resolution);
+        console.log(resolution);
+
         handleDownload(resolution['720p']);
         console.log(resolution);
       })
@@ -140,13 +97,22 @@ export default function EpisodesListing({ showInfo }) {
   // [{ attributes: { airdate, canonicalTitle, number, synopsis, thumbnail: { original } } }]
   return (
     <>
+      <select
+        value={currentResolution}
+        onChange={(e) => setCurrentResolution(e.target.value)}
+        id="resolution"
+      >
+        <option value="480p">480p</option>
+        <option value="720p">720p</option>
+        <option value="1080p">1080p</option>
+      </select>
       {errors ? (
         <h1>error oops</h1>
       ) : (
         <div className={classes.container}>
           {episodes ? (
             episodes.map((episode, index) => (
-              <>
+              <div key={index}>
                 {isLoading && (
                   <FullscreenLoad
                     message="Fetching torrent link please wait..."
@@ -183,7 +149,7 @@ export default function EpisodesListing({ showInfo }) {
                   </div>
                 </div>
                 <Hr />
-              </>
+              </div>
             ))
           ) : (
             <p>loading</p>

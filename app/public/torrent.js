@@ -15,38 +15,23 @@ torrentQueue.push(magnetURI);
 let currentTorrent;
 
 const startDownload = (uri, seriesName) => {
-  return new Promise((resolve, reject) => {
-    console.log('hello from torrent');
-    dirHandler.checkIfSeriesOnDisk(seriesName);
-    currentTorrent = client.add(
-      uri,
-      {
-        path: path.join(
-          'C:',
-          'Users',
-          'vanos',
-          'OneDrive',
-          'Desktop',
-          'animetest',
-          'media',
-          seriesName
-        ),
-      },
-      (torrent) => {
-        console.log('client is downloading');
-
-        torrent.files.forEach((file) => {
-          //console.log(file);
-
-          console.log(file.name);
-          console.log(file.path);
-          console.log('is ready: ' + file.ready);
-        });
-      }
-    );
-
-    resolve('torrent was added');
-  });
+  dirHandler.checkIfSeriesOnDisk(seriesName);
+  currentTorrent = client.add(
+    uri,
+    {
+      path: path.join(
+        'C:',
+        'Users',
+        'vanos',
+        'OneDrive',
+        'Desktop',
+        'animetest',
+        'media',
+        seriesName
+      ),
+    },
+    (torrent) => {}
+  );
 };
 
 // currentTorrent.on('ready', () => {
@@ -78,7 +63,29 @@ const onQuit = () =>
     }
   });
 
-const getInfo = () => {
+const getInfo = (magnetURI, event) => {
+  let info = client.get(magnetURI);
+  info.on('ready', () => {
+    event.reply('add-torrent-reply', {
+      path: info.path,
+      name: info.name,
+      downloadSpeed: info.downloadSpeed,
+      progress: info.progress,
+    });
+  });
+
+  info.on('done', () => {
+    client.remove(magnetURI, (err) => {
+      if (err) {
+        console.log('error removing torrent');
+        return;
+      }
+      console.log('Removed torrent');
+    });
+  });
+};
+
+const getInfoAll = () => {
   const activeTorrents = client.torrents;
 
   console.log(`These are all the active torrents: ${activeTorrents}`);
@@ -107,4 +114,5 @@ module.exports = {
   startDownload,
   removeTorrent,
   getInfo,
+  getInfoAll,
 };
