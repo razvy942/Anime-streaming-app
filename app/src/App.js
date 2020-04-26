@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { HashRouter as Router, Route } from 'react-router-dom';
+import { createHashHistory } from 'history';
 
 import MainPage from './components/MainPage';
 import NavBar from './components/UI/Navbar/NavBar';
@@ -8,10 +9,11 @@ import VideoPlayer from './components/VideoPlayer/Player';
 import DownloadManager from './components/DownloadManager/DownloadManager';
 import './App.css';
 
-// TODO: BUG when a file is already downloaded it doesn't redirect correctly
+const history = createHashHistory();
+
 function App() {
   return (
-    <Router>
+    <Router history={history}>
       <div className="App">
         <NavBar />
         <Route exact path="/">

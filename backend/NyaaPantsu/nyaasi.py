@@ -1,7 +1,8 @@
 import requests
 import re
 from bs4 import BeautifulSoup
-
+import pprint
+import anitopy
 
 class NyaaSi:
     def __init__(self):
@@ -69,7 +70,15 @@ class NyaaSi:
         # remove stuff like _
         noise_regex = re.compile('[_]')
 
+    def get_episode_number(self, title):
+        # possible values: E##, Episode ##, ##
+        pass
+        
+        
 
 if __name__ == '__main__':
-    nyaa = NyaaSi()
-    nyaa.parse('[LostYears] Attack on Titan Season 4 (48) (WEB 1080p Hi10 AAC) [Dual Audio] (Shingeki no Kyojin)')
+    # nyaa = NyaaSi()
+    # val = nyaa.parse('[Noem-light] Fate/Zero Complete Batch ENHANCED (BD-BOX 720p HEVC)')
+    # print(val)
+    val = anitopy.parse('[Ryuuga] - A Silent Voice 2016 [1080p-DTS-HD MA 5.1-REMUX] - [Dual-Audio]')
+    pprint.pprint(val)

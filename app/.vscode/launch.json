@@ -7,6 +7,14 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Torrent",
+      "runtimeExecutable": "node",
+      "program": "${workspaceFolder}\\public\\torrent.js",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "protocol": "inspector",
       "runtimeExecutable": "${workspaceFolder}\\node_modules\\.bin\\electron",
       "runtimeArgs": ["--remote-debugging-port=9223", "."],

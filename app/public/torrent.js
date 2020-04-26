@@ -5,18 +5,21 @@ const fs = require('fs');
 // to see all torrents client.torrents ..
 const client = new WebTorrent();
 const dirHandler = require('./seriesFolderHandle');
+// let currentTorrent;
 
-const torrentQueue = [];
-
-const magnetURI =
-  'magnet:?xt=urn:btih:YZUTHBA3PH4RIVXR7WZ5DDHVOG5UNESN&tr=http://nyaa.tracker.wf:7777/announce&tr=udp://tracker.coppersurfer.tk:6969/announce&tr=udp://tracker.internetwarriors.net:1337/announce&tr=udp://tracker.leechersparadise.org:6969/announce&tr=udp://tracker.opentrackr.org:1337/announce&tr=udp://open.stealth.si:80/announce&tr=udp://p4p.arenabg.com:1337/announce&tr=udp://mgtracker.org:6969/announce&tr=udp://tracker.tiny-vps.com:6969/announce&tr=udp://peerfect.org:6969/announce&tr=http://share.camoe.cn:8080/announce&tr=http://t.nyaatracker.com:80/announce&tr=https://open.kickasstracker.com:443/announce';
-
-torrentQueue.push(magnetURI);
-let currentTorrent;
-
-const startDownload = (uri, seriesName) => {
+//TODO: load file path from user config file
+const startDownload = (uri, seriesName, isBatch = false) => {
+  // Creates appropriate directory for the series
   dirHandler.checkIfSeriesOnDisk(seriesName);
-  currentTorrent = client.add(
+
+  // Check if torrent already exists
+  let existingTorrent = client.get(uri);
+
+  if (existingTorrent) {
+    return true;
+  }
+
+  let currentTorrent = client.add(
     uri,
     {
       path: path.join(
@@ -30,8 +33,27 @@ const startDownload = (uri, seriesName) => {
         seriesName
       ),
     },
-    (torrent) => {}
+    (torrent) => {
+      console.log('hello from torrent');
+      // When no corresponding torrent is found, we look for a batch and just select the appropriate episode
+      if (isBatch) {
+        // API buggy, need to deselect all files first, it still ends up downloading a small piece of the next file though
+        torrent.deselect(0, torrent.pieces.length - 1, false);
+        torrent.files.forEach((file) => {
+          if (
+            file.name ===
+            '[bonkai77].Fate.Zero.Episode.01.(ENHANCED).Summoning.of.the.Heroes.1080p.Dual.Audio.Bluray [886DFD91].mkv'
+          ) {
+            file.select();
+          } else {
+            file.deselect();
+          }
+        });
+      }
+    }
   );
+
+  return false;
 };
 
 // currentTorrent.on('ready', () => {
@@ -63,26 +85,35 @@ const onQuit = () =>
     }
   });
 
-const getInfo = (magnetURI, event) => {
+const getInfo = (magnetURI, event, existingTorrent) => {
   let info = client.get(magnetURI);
-  info.on('ready', () => {
+  if (existingTorrent) {
     event.reply('add-torrent-reply', {
       path: info.path,
       name: info.name,
       downloadSpeed: info.downloadSpeed,
       progress: info.progress,
     });
-  });
-
-  info.on('done', () => {
-    client.remove(magnetURI, (err) => {
-      if (err) {
-        console.log('error removing torrent');
-        return;
-      }
-      console.log('Removed torrent');
+  } else {
+    info.on('ready', () => {
+      event.reply('add-torrent-reply', {
+        path: info.path,
+        name: info.name,
+        downloadSpeed: info.downloadSpeed,
+        progress: info.progress,
+      });
     });
-  });
+
+    info.on('done', () => {
+      client.remove(magnetURI, (err) => {
+        if (err) {
+          console.log('error removing torrent');
+          return;
+        }
+        console.log('Removed torrent');
+      });
+    });
+  }
 };
 
 const getInfoAll = () => {
@@ -109,6 +140,17 @@ const getInfoAll = () => {
 
   return info;
 };
+
+// function testTorrentBatch() {
+//   let url =
+//     'magnet:?xt=urn:btih:cef3a47b73c4801e635fb0b8acc530a40b159511&dn=%5Bbonkai77%5D%20Fate%20Zero%20%28ENHANCED%29%20%5BBD-1080p%5D%20%5BDUAL-AUDIO%5D%20%20%5Bx265%5D%20%5BHEVC%5D%20%5BAAC%5D%20%5B10bit%5D&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce';
+//   let currentTorrent = startDownload(url, 'Fate Zero', true);
+//   currentTorrent.on('ready', () => {
+//     console.log('torrent ready!!');
+//   });
+// }
+
+// testTorrentBatch();
 
 module.exports = {
   startDownload,

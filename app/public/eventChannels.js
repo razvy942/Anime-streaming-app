@@ -3,9 +3,9 @@ const torrent = require('./torrent');
 
 ipcMain.on('add-torrent', (event, arg) => {
   console.log('hello i am adding new torrent: ' + arg[0]);
-  torrent.startDownload(arg[0], arg[1]);
+  let existingTorrent = torrent.startDownload(arg[0], arg[1]);
 
-  torrent.getInfo(arg[0], event);
+  torrent.getInfo(arg[0], event, existingTorrent);
 });
 
 ipcMain.on('remove-torrent', (event, arg) => {

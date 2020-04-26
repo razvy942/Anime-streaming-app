@@ -1,46 +1,27 @@
 import unittest
-import nyaaApi, nyaasi
+import nyaaApi, nyaasi, nyaaScraper
 
 class PantsuAPITest(unittest.TestCase):
     def setUp(self):
-        #self.nyaaPantsu = nyaaApi.NyaaPantsu()
-        self.nyaaSi = nyaasi.NyaaSi()
-
-    # def tearDown(self):
-    #     del self.nyaaPantsu
-
-    # def test_get_search_results(self):
-    #     self.nyaa.search_torrent('Attack on titan')
-    #     show_name = '[HorribleSubs] Shingeki no Kyojin S2 - 37'
-    #     res = next(self.nyaa.search_torrent(show_name))
+        self.scraper = nyaaScraper.NyaaScraper()
         
-    def test_title_parsing(self):
-        test_titles = ['[EMBER] Kakushigoto S01E03 [1080p] [HEVC WEBRip]', 
-            '[Anime Time] Hachi-nan tte, Sore wa Nai deshou! - 02 [1080p HEVC 10bit x265].mkv',
-            '[HorribleSubs] Fugou Keiji Balance - UNLIMITED - 02 [1080p].mkv',
-            '[bonkai77] Fate Zero (ENHANCED) [BD-1080p] [DUAL-AUDIO] [x265] [HEVC] [AAC] [10bit]',
-            '[Judas] Shingeki no Kyojin (Attack on Titan) (Season 3 Complete) [BD 1080p][HEVC x265 10bit][Multi-Subs]',
-            '[Cleo] Attack on Titan Season 3 | Shingeki no Kyojin Season 3 [Dual Audio 10bit 720p][HEVC-x265]',
-            '[LostYears] Attack on Titan S03E11 (48) (WEB 1080p Hi10 AAC) [Dual Audio] (Shingeki no Kyojin)',
-            '[Golumpa] Attack on Titan S3 - 19 (Shingeki no Kyojin S3) [English Dub] [FuniDub 720p x264 AAC] [MKV] [82FDDA31]'
-        ]
-        expected_output = ['Kakushigoto - 03 [1080p]',
-           'Hachi-nan tte, Sore wa Nai deshou! - 02 [1080p]',
-           'Fugou Keiji Balance - UNLIMITED - 02 [1080p]' ,
-           'Fate Zero - BATCH [1080p]',
-           'Shingeki no Kyojin - BATCH [1080p]', 
-           'Attack on Titan Season 3 | Shingeki no Kyojin Season 3 - BATCH [720p]',
-           'Attack on Titan - 11 [1080p]',
-           'Attack on Titan - 19 [720p]'
-        ]
+    def test_get_search_results(self):
+        expected_res = {
+            "episode_number": "01",
+            "magnet": "magnet:?xt=urn:btih:009b4cea1a2d24d50405fdafc320e664c09a5486&dn=%5BHorribleSubs%5D%20Koi%20wa%20Ameagari%20no%20You%20ni%20-%2001%20%5B1080p%5D.mkv&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce",
+            "resolution": "1080p",
+            "season": "1",
+            "seeders": "13",
+            "size": "913.3 MiB",
+            "title": "[HorribleSubs] Koi wa Ameagari no You ni - 01 [1080p].mkv",
+            "uploaded on": "2018-01-11 18:04"
+        }
 
-        test_output = []
-        for title in test_titles:
-            parsed_title = self.nyaaSi.parse(title)
-
-            test_output.append(f'{parsed_title[1]} - {parsed_title[2]} [{parsed_title[3]}] - {parsed_title[4]}')
+        show_name = 'Koi wa Ameagari no You ni - 01'
+        res = self.scraper.search(show_name, '01', False)
+        self.assertDictEqual(expected_res, res[0])
         
-        self.assertCountEqual(expected_output, test_output)
+ 
 
 if __name__ == '__main__':
     unittest.main()

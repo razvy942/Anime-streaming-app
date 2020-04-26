@@ -53,33 +53,56 @@ export default function EpisodesListing({ showInfo }) {
     ipcRenderer.send('add-torrent', [magnetURI, title]);
   };
 
+  const handleBatchDownload = () => {
+    // send event with flag to let backend know that we're dealing with batch
+  };
+
   const getEpisodeMagnet = (epNumber) => {
     let title = showInfo['title'];
     if (location.state) {
       title = location.state.horribleTitle;
     }
 
+    epNumber = epNumber.length > 1 ? epNumber : `0${epNumber}`;
+
     axios
       .get(
         `http://127.0.0.1:5000/horriblesubs/get-episode/${title}/${epNumber}`
       )
       .then((res) => {
-        const data = res.data;
+        // res is an array
+        const data = res.data[title];
         console.log(data);
-        let resolution = {};
+        let resolutions = {
+          '480p': [],
+          '720p': [],
+          '1080p': [],
+        };
 
-        resolution['720p'] = data[title]['720p'];
-        resolution['1080p'] = data[title]['1080p'];
-        if (
-          resolution['720p'] === undefined &&
-          resolution['1080p'] === undefined
-        ) {
-          // handle errors
+        for (let i = 0; i < data.length; i++) {
+          if (
+            data[i]['resolution'] === '1080p' ||
+            data[i]['resolution'] === 'Bluray' ||
+            data[i]['resolution'] === 'BD'
+          ) {
+            resolutions['1080p'].push(data[i]);
+          } else if (data[i]['resolution'] === '720p') {
+            resolutions['720p'].push(data[i]);
+          } else if (data[i]['resolution'] === '480p') {
+            resolutions['480p'].push(data[i]);
+          }
         }
-        console.log(resolution);
 
-        handleDownload(resolution['720p']);
-        console.log(resolution);
+        console.log(resolutions);
+
+        if (
+          resolutions[currentResolution][0].episode_number === 'Batch' ||
+          typeof resolutions[currentResolution][0].episode_number === 'object'
+        ) {
+          handleBatchDownload();
+        } else {
+          handleDownload(resolutions[currentResolution][0]['magnet']);
+        }
       })
       .catch((err) => {
         console.log(`Error fetching ${title}'s details: ${err}`);

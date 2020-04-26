@@ -84,6 +84,7 @@ class Renderer extends React.Component {
         console.log(err);
         return;
       }
+      console.log('file was found');
       clearInterval(this.fileCheckerInterval);
       this.setState({
         isFileCreated: true,
@@ -257,7 +258,7 @@ class Renderer extends React.Component {
 
   render() {
     return (
-      <div style={{ height: '90vh', marginTop: '-20px' }}>
+      <div style={{ height: '100vh', marginTop: '-20px' }}>
         <div style={{ height: '75%' }}>
           <div
             ref={this.nodeRef}

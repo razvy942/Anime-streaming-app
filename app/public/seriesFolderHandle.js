@@ -4,6 +4,7 @@ const fs = require('fs');
 // media folder should be read from a custom user config file, assume it's ./media for now
 const checkIfSeriesOnDisk = (seriesName) => {
   // const seriesPath = path.join(__dirname, 'media', seriesName);
+  // TODO: Load path from user config file
   const seriesPath = path.join(
     'C:',
     'Users',

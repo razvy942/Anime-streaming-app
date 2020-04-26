@@ -76,17 +76,12 @@ def search_horriblesubs():
 @bp.route('/horriblesubs/get-episode/<title>/<episode_number>')
 def get_ep(title, episode_number):
     # shows = nyaa.get_magnet(title, episode_number)
-    reg = nyaaScrap.search(f'[HorribleSubs] {title} - {episode_number} [720p]')
-    if reg:
-        reg = reg[0]['magnet']
-    hd = nyaaScrap.search(f'[HorribleSubs] {title} - {episode_number} [1080p]')
-    if hd:
-        hd = hd[0]['magnet']
-    shows = {
-        '720p': reg,
-        '1080p': hd
-    }
-    return jsonify({title: shows})
+    if episode_number == 'movie':
+        info = nyaaScrap.search(title, episode_number, is_movie=True)
+    else:
+        info = nyaaScrap.search(f'{title} - {episode_number}', episode_number)
+  
+    return jsonify({title: info})
 
 @bp.route('/horriblesubs/get-info/<title>')
 def get_info(title):
