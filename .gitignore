@@ -1,0 +1,6 @@
+.vscode
+*.pyc
+__pycache__
+series-db.json
+shows-titles.json
+env

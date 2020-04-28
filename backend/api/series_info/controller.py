@@ -4,9 +4,9 @@ import pprint
 import requests
 from difflib import SequenceMatcher
 
-from horrible_subs import horrible_parser
-from api_bindings import kitsu_bindings 
-from api import pg_db
+from backend.horrible_subs import horrible_parser
+from backend.api_bindings import kitsu_bindings 
+from backend.api import pg_db
 
 bp = Blueprint('SeriesInfo', __name__)
 parser = horrible_parser.HorribleSubsParser()

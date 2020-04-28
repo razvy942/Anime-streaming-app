@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from nyaa import nyaa_scraper
+from backend.nyaa import nyaa_scraper
 
 bp = Blueprint('TorrentInfo', __name__)
 nyaa_scrap = nyaa_scraper.NyaaScraper()
