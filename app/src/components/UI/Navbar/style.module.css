@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 60px;
+  height: 48px;
   background-color: var(--side-bar-color);
   /* background-color: rgba(0, 0, 0, 0.7); */
   color: var(--font-color);
@@ -19,7 +19,7 @@
 
 .links {
   color: var(--font-color);
-  flex: 0.3;
+  flex: 0.5;
   display: flex;
   justify-content: flex-start;
 }
@@ -27,17 +27,17 @@
 .searchBox {
   display: flex;
   flex: 0.4;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .searchBox input {
-  width: 60%;
+  width: 70%;
   -webkit-app-region: no-drag;
 }
 
 .searchInput {
   padding: 12px 24px;
-  height: 8px;
+  height: 6px;
   background-color: transparent;
   transition: transform 250ms ease-in-out;
   font-size: 14px;
@@ -49,7 +49,6 @@
   transition: all 250ms ease-in-out;
   backface-visibility: hidden;
   transform-style: preserve-3d;
-  /* background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z'/%3E%3Cpath d='M0 0h24v24H0z' fill='none'/%3E%3C/svg%3E"); */
   background-image: url('../images/search-icon.png');
   background-repeat: no-repeat;
   background-size: 18px 18px;
@@ -76,18 +75,19 @@
 .windowOptions {
   width: 20%;
   flex: 0.3;
-  margin-left: 20px;
+  margin: 0px;
   display: flex;
   justify-content: flex-end;
   margin-right: 20px;
 }
 
 .windowControl {
-  height: 60px;
-  width: 45px;
+  height: 45px;
+  width: 60px;
   border: none;
   background: none;
   color: var(--text-color);
+  margin: 0px;
 }
 
 .windowControl:hover {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ipcRenderer } from 'electron';
 
-import DownloadsListElement from '../UI/DownloadsList';
+import DownloadsListElement from '../UI/DownloadsList/DownloadsList';
 import classes from './DownloadManager.module.css';
 
 const DownloadManager = () => {
@@ -19,10 +19,7 @@ const DownloadManager = () => {
   }, []);
 
   useEffect(() => {
-    console.log('im updating');
-
     ipcRenderer.on('get-torrent-info-reply', (event, arg) => {
-      console.log(arg);
       setTorrentList(arg);
     });
 
@@ -35,8 +32,21 @@ const DownloadManager = () => {
 
   return (
     <div className={classes.torrentTable}>
+      <div style={{ height: '45px' }}></div>
       {torrentList ? (
         <div>
+          <div className={classes.tblHeader}>
+            <table cellPadding="0" cellSpacing="0" border="0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Download Speed</th>
+                  <th>Progress</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
           {Object.keys(torrentList).map((show, index) => (
             <DownloadsListElement showInfo={torrentList[show]} />
           ))}

@@ -122,16 +122,16 @@ const NavBar = (props) => {
       </div> */}
       <div className={classes.windowOptions}>
         <button onClick={minimizeWindow} className={classes.windowControl}>
-          <FontAwesomeIcon size="lg" icon={faWindowMinimize} />
+          <FontAwesomeIcon size="md" icon={faWindowMinimize} />
         </button>
         <button onClick={maximizeWindow} className={classes.windowControl}>
-          <FontAwesomeIcon size="lg" icon={faCompress} />
+          <FontAwesomeIcon size="md" icon={faCompress} />
         </button>
         <button
           onClick={closeWindow}
           className={[classes.windowControl, classes.windowClose].join(' ')}
         >
-          <FontAwesomeIcon size="lg" icon={faTimes} />
+          <FontAwesomeIcon size="md" icon={faTimes} />
         </button>
       </div>
     </nav>

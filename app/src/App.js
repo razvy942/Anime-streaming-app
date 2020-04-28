@@ -6,15 +6,13 @@ import NavBar from './components/UI/Navbar/NavBar';
 import ShowInfo from './components/ShowInfo/ShowInfo';
 import VideoPlayer from './components/VideoPlayer/Player';
 import DownloadManager from './components/DownloadManager/DownloadManager';
-import historyCreator from './helpers/createaHistory';
 import './App.css';
 
 //const history = createHashHistory();
-const history = historyCreator.get();
 
 function App() {
   return (
-    <Router history={history}>
+    <Router>
       <div className="App">
         <nav>
           <NavBar />

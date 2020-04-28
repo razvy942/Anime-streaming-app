@@ -18,14 +18,17 @@ const MainPage = ({ isHomePage, isAllShows }) => {
 
   const [allShows, setAllShows] = useState(null);
   const [currentPage, setCurrentPage] = useState(parseInt(params.page));
-  const [showsArr, setShowsArr] = useState([]);
+  const [errors, setErrors] = useState(undefined);
 
   let url = `${baseURL}/get-all?page=${currentPage}`;
   if (isHomePage) url = `${baseURL}/get-current-season`;
 
   useEffect(() => {
+    const CancelToken = axios.CancelToken;
+    const source = CancelToken.source();
+
     axios
-      .get(url)
+      .get(url, { cancelToken: source.token })
       .then((res) => {
         console.log(res.data);
         setAllShows(res.data);
@@ -35,8 +38,15 @@ const MainPage = ({ isHomePage, isAllShows }) => {
         });
       })
       .catch((err) => {
-        console.log(`Error fetching shows ${err}`);
+        if (axios.isCancel(err)) {
+          console.log('Canceled request');
+        } else {
+          console.log(`Error fetching shows ${err}`);
+          setErrors(err);
+        }
       });
+
+    return () => source.cancel();
   }, [currentPage, url]);
 
   const changePage = (increment = true) => {
@@ -81,25 +91,31 @@ const MainPage = ({ isHomePage, isAllShows }) => {
   return (
     <div className={classes.mainPage}>
       <div style={{ height: '80px' }}></div>
-      <h1>{isHomePage ? 'Currently Airing' : 'All Shows'} </h1>
-      <div className={classes.container}>
-        {allShows ? (
-          Object.keys(allShows).map((show, index) => {
-            return (
-              <div key={index}>
-                <AnimeContainer
-                  horribleTitle={show}
-                  info={parseInfo(allShows[show])}
-                />
-              </div>
-            );
-          })
-        ) : (
-          // <Spinner />
-          <Placeholder components={15} />
-        )}
-      </div>
-      {isAllShows && paginationElement}
+      {errors ? (
+        <div>there was an error sorry, please try again later</div>
+      ) : (
+        <>
+          <h1>{isHomePage ? 'Currently Airing' : 'All Shows'} </h1>
+          <div className={classes.container}>
+            {allShows ? (
+              Object.keys(allShows).map((show, index) => {
+                return (
+                  <div key={index}>
+                    <AnimeContainer
+                      horribleTitle={show}
+                      info={parseInfo(allShows[show])}
+                    />
+                  </div>
+                );
+              })
+            ) : (
+              // <Spinner />
+              <Placeholder components={15} />
+            )}
+          </div>
+          {isAllShows && paginationElement}
+        </>
+      )}
     </div>
   );
 };

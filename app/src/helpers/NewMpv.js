@@ -143,11 +143,6 @@ class ReactMPV extends React.PureComponent {
     )
       return;
 
-    if (['p', 'P'].includes(key)) {
-      this.props.togglePause();
-      return;
-    }
-
     this.command('keypress', key);
   }
 

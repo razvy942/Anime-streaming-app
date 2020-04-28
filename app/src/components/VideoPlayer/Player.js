@@ -13,6 +13,7 @@ import {
   faPause,
   faFolderOpen,
   faSquare,
+  faHistory,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { UserContext } from '../../store/store';
@@ -28,6 +29,7 @@ class Renderer extends React.Component {
     fullscreen: false,
     isFileCreated: false,
     showControls: false,
+    controlsTime: 1500,
   };
 
   mpv = null;
@@ -50,8 +52,10 @@ class Renderer extends React.Component {
       timeStamp -= 60;
     }
 
-    if (hours.toString().length < 2) {
-      hours = `0${hours}`;
+    if (hours === 0) {
+      hours = '';
+    } else if (hours.toString().length < 2) {
+      hours = `0${hours}:`;
     }
 
     if (minutes.toString().length < 2) {
@@ -71,11 +75,11 @@ class Renderer extends React.Component {
 
     if (totalDuration) {
       this.setState({
-        durationStamp: `${hours}:${minutes}:${seconds}`,
+        durationStamp: `${hours}${minutes}:${seconds}`,
       });
     } else {
       this.setState({
-        currentTime: `${hours}:${minutes}:${seconds}`,
+        currentTime: `${hours}${minutes}:${seconds}`,
       });
     }
   };
@@ -148,7 +152,7 @@ class Renderer extends React.Component {
     this.mpv.command('loadfile', vidPath);
     setTimeout(() => {
       this.mpv.property('pause', false);
-    }, 500);
+    }, 10);
   };
 
   handlePropertyChange = (name, value) => {
@@ -237,7 +241,19 @@ class Renderer extends React.Component {
       this.setState({
         showControls: false,
       });
-    }, 1500);
+    }, this.state.controlsTime);
+  };
+
+  handleMouseOverControls = () => {
+    this.setState({
+      controlsTime: 10000,
+    });
+  };
+
+  handleMouseOutControls = () => {
+    this.setState({
+      controlsTime: 1500,
+    });
   };
 
   handleMouseOut = () => {
@@ -264,10 +280,29 @@ class Renderer extends React.Component {
     }, 200);
   };
 
+  rewind = () => {
+    let currentTime = this.state['time-pos'];
+    currentTime -= 15;
+    this.setState({
+      'time-pos': currentTime,
+    });
+    this.mpv.property('time-pos', currentTime);
+  };
+
+  advance = () => {
+    let currentTime = this.state['time-pos'];
+    currentTime += 15;
+
+    this.setState({
+      'time-pos': currentTime,
+    });
+    this.mpv.property('time-pos', currentTime);
+  };
+
   render() {
     return (
       <div>
-        <div style={{ height: '60px' }}></div>
+        <div style={{ height: '45px' }}></div>
         <div className={classes.playerContainer}>
           <div
             onMouseMove={this.handleMouseIn}
@@ -285,7 +320,6 @@ class Renderer extends React.Component {
                     onReady={this.handleMPVReady}
                     onPropertyChange={this.handlePropertyChange}
                     onMouseDown={(e) => this.handleClick(e)}
-                    togglePause={this.togglePause}
                   />
 
                   <div
@@ -298,7 +332,14 @@ class Renderer extends React.Component {
                           ].join(' ')
                     }
                   >
-                    <div className={classes.controls}>
+                    <div
+                      onMouseEnter={this.handleMouseOverControls}
+                      onMouseLeave={this.handleMouseOutControls}
+                      className={classes.controls}
+                    >
+                      <button className={classes.control} onClick={this.rewind}>
+                        <FontAwesomeIcon size="sm" icon={faHistory} />
+                      </button>
                       <button
                         className={classes.control}
                         onClick={this.togglePause}
@@ -311,9 +352,13 @@ class Renderer extends React.Component {
                       </button>
                       <button
                         className={classes.control}
-                        onClick={this.handleStop}
+                        onClick={this.advance}
                       >
-                        <FontAwesomeIcon size="sm" icon={faSquare} />
+                        <FontAwesomeIcon
+                          size="sm"
+                          icon={faHistory}
+                          flip="horizontal"
+                        />
                       </button>
                       <span className={classes.time}>
                         {this.state.currentTime}
