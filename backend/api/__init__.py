@@ -1,18 +1,4 @@
-import os
-from flask import Flask, Blueprint
-from flask_cors import CORS, cross_origin
 import json
-
-from horrible_subs import horrible_parser
-from nyaa import nyaa_scraper
-from api_bindings import kitsu_bindings 
-
-
-bp = Blueprint("HorribleSubs", __name__)
-
-parser = horrible_parser.HorribleSubsParser()
-nyaa_scrap = nyaa_scraper.NyaaScraper()
-kitsu = kitsu_bindings.Kitsu()
 
 # TODO: database setup, etc...
 with open('kitsu-db.json') as db:

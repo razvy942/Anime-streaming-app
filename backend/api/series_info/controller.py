@@ -1,10 +1,16 @@
-from flask import request, jsonify
+from flask import request, jsonify, Blueprint
 import json
 import pprint
 import requests
 from difflib import SequenceMatcher
 
-from api import bp, pg_db, series_db, parser, kitsu, nyaa_scrap
+from horrible_subs import horrible_parser
+from api_bindings import kitsu_bindings 
+from api import pg_db
+
+bp = Blueprint('SeriesInfo', __name__)
+parser = horrible_parser.HorribleSubsParser()
+kitsu = kitsu_bindings.Kitsu()
 
 @bp.route('/get-all', methods=['GET'])
 def get_main_page():
@@ -60,16 +66,6 @@ def search_horriblesubs():
     show = {show_name: parser.shows_dict.get(show_name, 'not found')}
     return jsonify(show)
 
-
-@bp.route('/get-episode/<title>/<episode_number>')
-def get_ep(title, episode_number):
-    # shows = nyaa.get_magnet(title, episode_number)
-    if episode_number == 'movie':
-        info = nyaa_scrap.search(title, episode_number, is_movie=True)
-    else:
-        info = nyaa_scrap.search(f'{title} - {episode_number}', episode_number)
-  
-    return jsonify({title: info})
 
 @bp.route('/get-info/<title>')
 def get_info(title):
