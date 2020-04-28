@@ -1,21 +1,16 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useState } from 'react';
 
-const initialState = {};
-const store = createContext(initialState);
-const { Provider } = store;
+export const UserContext = createContext();
 
-const StateProvider = ({ children }) => {
-  const [state, dispatch] = useReducer((state, action) => {
-    switch (action.type) {
-      case 'TEST':
-        const newState = 'asd';
-        return newState;
-      default:
-        return state;
-    }
-  }, initialState);
+export const Provider = (props) => {
+  const [videoPath, setVideoPath] = useState({
+    fromRedirect: false,
+    filePath: undefined,
+  });
 
-  return <Provider value={{ state, dispatch }}>{children}</Provider>;
+  return (
+    <UserContext.Provider value={[videoPath, setVideoPath]}>
+      {props.children}
+    </UserContext.Provider>
+  );
 };
-
-export { store, StateProvider };

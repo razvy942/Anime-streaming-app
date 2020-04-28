@@ -15,10 +15,14 @@ body,
   align-items: flex-start;
 }
 
+.playerContainer {
+  height: 70vh;
+}
+
 .controlsContainer {
   position: relative;
   left: 1vw;
-  bottom: 60px;
+  bottom: 70px;
   width: 98vw;
   background: var(--side-bar-color);
   border-radius: 10px;
@@ -40,7 +44,7 @@ body,
   display: flex;
   height: 45px;
   margin: 0 10px 0 10px;
-  opacity: 1;
+  opacity: 0.5;
   transform: 0.3s;
   align-items: center;
   justify-content: space-evenly;
@@ -55,7 +59,6 @@ body,
   background: transparent;
   color: #c8bfbf;
   opacity: 1;
-  margin: 0 5px 0 5px;
 }
 
 .control:first-child {
@@ -87,6 +90,12 @@ body,
   left: 50px;
 }
 
+.showInfo {
+  height: 23vh;
+  overflow-y: scroll;
+  padding: 15px;
+}
+
 .hideTitle {
   display: none;
 }
@@ -94,7 +103,6 @@ body,
 .seek {
   flex: 1;
   position: relative;
-
   margin: 0;
   cursor: pointer;
   outline: none;

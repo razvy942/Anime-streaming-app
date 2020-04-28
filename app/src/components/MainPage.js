@@ -79,7 +79,8 @@ const MainPage = ({ isHomePage, isAllShows }) => {
   };
 
   return (
-    <div>
+    <div className={classes.mainPage}>
+      <div style={{ height: '80px' }}></div>
       <h1>{isHomePage ? 'Currently Airing' : 'All Shows'} </h1>
       <div className={classes.container}>
         {allShows ? (

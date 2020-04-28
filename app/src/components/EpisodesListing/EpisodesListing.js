@@ -8,6 +8,7 @@ import Hr from '../UI/HorizontalLine/HorizontalLine';
 import FullscreenLoad from '../UI/Loading/FullscreenLoad';
 import classes from './EpisodesLIsting.module.css';
 import defaultThumbnail from '../UI/images/not-found-banner.png';
+import historyCreator from '../../helpers/createaHistory';
 
 export default function EpisodesListing({ showInfo }) {
   const [episodes, setEpisodes] = useState(null);
@@ -15,7 +16,8 @@ export default function EpisodesListing({ showInfo }) {
   const [errors, setErrors] = useState(null);
   const [currentResolution, setCurrentResolution] = useState('720p');
 
-  const history = useHistory();
+  //const history = useHistory();
+  const history = historyCreator.get();
   const location = useLocation();
 
   useEffect(() => {
@@ -77,6 +79,7 @@ export default function EpisodesListing({ showInfo }) {
           '480p': [],
           '720p': [],
           '1080p': [],
+          unknown: [],
         };
 
         for (let i = 0; i < data.length; i++) {
@@ -90,6 +93,8 @@ export default function EpisodesListing({ showInfo }) {
             resolutions['720p'].push(data[i]);
           } else if (data[i]['resolution'] === '480p') {
             resolutions['480p'].push(data[i]);
+          } else {
+            resolutions['unknown'].push(data[i]);
           }
         }
 
@@ -133,50 +138,54 @@ export default function EpisodesListing({ showInfo }) {
         <h1>error oops</h1>
       ) : (
         <div className={classes.container}>
-          {episodes ? (
-            episodes.map((episode, index) => (
-              <div key={index}>
-                {isLoading && (
-                  <FullscreenLoad
-                    message="Fetching torrent link please wait..."
-                    handleHide={() => setIsLoading(false)}
-                  />
-                )}
-                <div
-                  onClick={() => clickHandler(episode['attributes']['number'])}
-                  className={classes.episodeBox}
-                  key={index}
-                >
-                  <div className={classes.thumbnail}>
-                    <img
-                      src={
-                        episode['attributes']['thumbnail']
-                          ? episode['attributes']['thumbnail']['original']
-                          : defaultThumbnail
-                      }
-                      alt={`Episode ${episode['attributes']['number']} thumbnail`}
+          <div className={classes.episodesContainer}>
+            {episodes ? (
+              episodes.map((episode, index) => (
+                <div key={index}>
+                  {isLoading && (
+                    <FullscreenLoad
+                      message="Fetching torrent link please wait..."
+                      handleHide={() => setIsLoading(false)}
                     />
-                  </div>
-                  <div className={classes.epInfo}>
-                    <span className={classes.title}>
-                      {episode['attributes']['number']}:{' '}
-                      {episode['attributes']['canonicalTitle']}
-                    </span>
-                    <div className={classes.synopsis}>
-                      {episode['attributes']['synopsis']}
+                  )}
+                  <div
+                    onClick={() =>
+                      clickHandler(episode['attributes']['number'])
+                    }
+                    className={classes.episodeBox}
+                    key={index}
+                  >
+                    <div className={classes.thumbnail}>
+                      <img
+                        src={
+                          episode['attributes']['thumbnail']
+                            ? episode['attributes']['thumbnail']['original']
+                            : defaultThumbnail
+                        }
+                        alt={`Episode ${episode['attributes']['number']} thumbnail`}
+                      />
                     </div>
-                    {'...'}
-                    <span className={classes.airDate}>
-                      Aired on {episode['attributes']['airdate']}
-                    </span>
+                    <div className={classes.epInfo}>
+                      <span className={classes.title}>
+                        {episode['attributes']['number']}:{' '}
+                        {episode['attributes']['canonicalTitle']}
+                      </span>
+                      <div className={classes.synopsis}>
+                        {episode['attributes']['synopsis']}
+                      </div>
+                      {'...'}
+                      <span className={classes.airDate}>
+                        Aired on {episode['attributes']['airdate']}
+                      </span>
+                    </div>
                   </div>
+                  <Hr />
                 </div>
-                <Hr />
-              </div>
-            ))
-          ) : (
-            <p>loading</p>
-          )}
+              ))
+            ) : (
+              <p>loading</p>
+            )}
+          </div>
         </div>
       )}
     </>

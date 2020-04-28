@@ -23,6 +23,7 @@
   right: 0;
   top: 0;
   transition: 0.4s;
+  -webkit-app-region: no-drag;
 }
 
 .slider:before {

@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCompress,
+  faCompressAlt,
+  faTimes,
+  faWindowMinimize,
+} from '@fortawesome/free-solid-svg-icons';
+import { remote } from 'electron';
 
 import Modal from '../Modal';
 import Slider from '../Slider/Slider';
@@ -31,6 +39,22 @@ const NavBar = (props) => {
     }
   };
 
+  const minimizeWindow = () => {
+    remote.getCurrentWindow().minimize();
+  };
+
+  const maximizeWindow = () => {
+    if (!remote.getCurrentWindow().isMaximized()) {
+      remote.getCurrentWindow().maximize();
+    } else {
+      remote.getCurrentWindow().unmaximize();
+    }
+  };
+
+  const closeWindow = () => {
+    remote.app.quit();
+  };
+
   const switchThemes = () => {
     if (!darkTheme) {
       document.documentElement.setAttribute('data-theme', 'dark');
@@ -55,26 +79,26 @@ const NavBar = (props) => {
   ) : null;
 
   return (
-    <div className={classes.navBar} onKeyDown={(e) => handleKeyPress(e)}>
+    <nav className={classes.navBar} onKeyDown={(e) => handleKeyPress(e)}>
       <div className={classes.links}>
         <ul>
           <li>
-            <NavLink exact activeClassName={classes.active} to='/'>
+            <NavLink exact activeClassName={classes.active} to="/">
               Home
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to='/all-shows/1'>
+            <NavLink activeClassName={classes.active} to="/all-shows/1">
               All shows
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to='/player'>
+            <NavLink activeClassName={classes.active} to="/player">
               Video Player
             </NavLink>
           </li>
           <li>
-            <NavLink activeClassName={classes.active} to='/manage-downloads'>
+            <NavLink activeClassName={classes.active} to="/manage-downloads">
               Manage Downloads
             </NavLink>
           </li>
@@ -83,10 +107,10 @@ const NavBar = (props) => {
       <div className={classes.searchBox}>
         <input
           className={classes.searchInput}
-          placeholder='Search for something to watch'
+          placeholder="Search for something to watch"
         ></input>
       </div>
-      <div className={classes.profile}>
+      {/* <div className={classes.profile}>
         <Button clickAction={handleShow} text={'Login'} />
         <span
           style={{ display: 'flex', alignItems: 'center', marginLeft: '10px' }}
@@ -95,8 +119,22 @@ const NavBar = (props) => {
 
           {modal}
         </span>
+      </div> */}
+      <div className={classes.windowOptions}>
+        <button onClick={minimizeWindow} className={classes.windowControl}>
+          <FontAwesomeIcon size="lg" icon={faWindowMinimize} />
+        </button>
+        <button onClick={maximizeWindow} className={classes.windowControl}>
+          <FontAwesomeIcon size="lg" icon={faCompress} />
+        </button>
+        <button
+          onClick={closeWindow}
+          className={[classes.windowControl, classes.windowClose].join(' ')}
+        >
+          <FontAwesomeIcon size="lg" icon={faTimes} />
+        </button>
       </div>
-    </div>
+    </nav>
   );
 };
 

@@ -1,3 +1,8 @@
+.mainPage {
+  height: 100vh;
+  overflow-y: scroll;
+}
+
 .container {
   display: flex;
   flex-wrap: wrap;
@@ -6,6 +11,7 @@
   width: 75%;
   margin: 0 auto;
   margin-top: 20px;
+  margin-bottom: 40px;
 }
 
 .pagination {

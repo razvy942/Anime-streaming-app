@@ -1,21 +1,25 @@
 import React from 'react';
 import { HashRouter as Router, Route } from 'react-router-dom';
-import { createHashHistory } from 'history';
 
 import MainPage from './components/MainPage';
 import NavBar from './components/UI/Navbar/NavBar';
 import ShowInfo from './components/ShowInfo/ShowInfo';
 import VideoPlayer from './components/VideoPlayer/Player';
 import DownloadManager from './components/DownloadManager/DownloadManager';
+import historyCreator from './helpers/createaHistory';
 import './App.css';
 
-const history = createHashHistory();
+//const history = createHashHistory();
+const history = historyCreator.get();
 
 function App() {
   return (
     <Router history={history}>
       <div className="App">
-        <NavBar />
+        <nav>
+          <NavBar />
+        </nav>
+
         <Route exact path="/">
           <MainPage isHomePage={true} isAllShows={false} />
         </Route>

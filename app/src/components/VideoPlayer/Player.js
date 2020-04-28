@@ -2,12 +2,20 @@ import path from 'path';
 import React from 'react';
 // import { ReactMPV } from 'mpv.js';
 import ReactMPV from '../../helpers/NewMpv';
-
 import { remote } from 'electron';
 import classes from './Player.module.css';
 import { withRouter } from 'react-router-dom';
 import fs from 'fs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCompress,
+  faPlay,
+  faPause,
+  faFolderOpen,
+  faSquare,
+} from '@fortawesome/free-solid-svg-icons';
 
+import { UserContext } from '../../store/store';
 import Spinner from '../UI/Spinners/Spinner';
 
 class Renderer extends React.Component {
@@ -94,8 +102,6 @@ class Renderer extends React.Component {
 
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyDown, false);
-    console.log(path.join(__dirname, '.'));
-    console.log(this.props);
 
     if (this.props.location.state) {
       this.fileCheckerInterval = setInterval(() => {
@@ -158,11 +164,13 @@ class Renderer extends React.Component {
   toggleFullscreen = () => {
     if (this.state.fullscreen) {
       document.webkitExitFullscreen();
+      //remote.getCurrentWindow().unmaximize();
       this.setState({
         fullscreen: false,
       });
     } else {
-      this.nodeRef.current.webkitRequestFullscreen();
+      this.nodeRef.current.requestFullscreen();
+      //remote.getCurrentWindow().maximize();
       this.setState({
         fullscreen: true,
       });
@@ -258,76 +266,85 @@ class Renderer extends React.Component {
 
   render() {
     return (
-      <div style={{ height: '100vh', marginTop: '-20px' }}>
-        <div style={{ height: '75%' }}>
+      <div>
+        <div style={{ height: '60px' }}></div>
+        <div className={classes.playerContainer}>
           <div
-            ref={this.nodeRef}
             onMouseMove={this.handleMouseIn}
             onMouseLeave={this.handleMouseOut}
             className={classes.container}
           >
             {this.state.isFileCreated ? (
               <>
-                <ReactMPV
-                  className={classes.player}
-                  onReady={this.handleMPVReady}
-                  onPropertyChange={this.handlePropertyChange}
-                  onMouseDown={(e) => this.handleClick(e)}
-                  togglePause={this.togglePause}
-                />
-
                 <div
-                  className={
-                    this.state.showControls
-                      ? classes.controlsContainer
-                      : [
-                          classes.controlsContainer,
-                          classes.controlsContainerHidden,
-                        ].join(' ')
-                  }
+                  style={{ height: '100%', width: '100%' }}
+                  ref={this.nodeRef}
                 >
-                  <div className={classes.controls}>
-                    <button
-                      className={classes.control}
-                      onClick={this.togglePause}
-                    >
-                      {this.state.pause ? '▶' : '❚❚'}
-                    </button>
-                    <button
-                      className={classes.control}
-                      onClick={this.handleStop}
-                    >
-                      ■
-                    </button>
-                    <span className={classes.time}>
-                      {this.state.currentTime}
-                    </span>
-                    <input
-                      className={classes.seek}
-                      type="range"
-                      min={0}
-                      step={0.1}
-                      max={this.state.duration}
-                      value={this.state['time-pos']}
-                      onChange={this.handleSeek}
-                      onMouseDown={this.handleSeekMouseDown}
-                      onMouseUp={this.handleSeekMouseUp}
-                    />
-                    <span className={classes.time}>
-                      {this.state.durationStamp}
-                    </span>
-                    <button
-                      className={classes.control}
-                      onClick={this.handleLoad}
-                    >
-                      ⏏
-                    </button>
-                    <button
-                      className={classes.control}
-                      onClick={this.handleFullScreenToggle}
-                    >
-                      full
-                    </button>
+                  <ReactMPV
+                    className={classes.player}
+                    onReady={this.handleMPVReady}
+                    onPropertyChange={this.handlePropertyChange}
+                    onMouseDown={(e) => this.handleClick(e)}
+                    togglePause={this.togglePause}
+                  />
+
+                  <div
+                    className={
+                      this.state.showControls
+                        ? classes.controlsContainer
+                        : [
+                            classes.controlsContainer,
+                            classes.controlsContainerHidden,
+                          ].join(' ')
+                    }
+                  >
+                    <div className={classes.controls}>
+                      <button
+                        className={classes.control}
+                        onClick={this.togglePause}
+                      >
+                        {this.state.pause ? (
+                          <FontAwesomeIcon size="sm" icon={faPlay} />
+                        ) : (
+                          <FontAwesomeIcon size="sm" icon={faPause} />
+                        )}
+                      </button>
+                      <button
+                        className={classes.control}
+                        onClick={this.handleStop}
+                      >
+                        <FontAwesomeIcon size="sm" icon={faSquare} />
+                      </button>
+                      <span className={classes.time}>
+                        {this.state.currentTime}
+                      </span>
+                      <input
+                        className={classes.seek}
+                        type="range"
+                        min={0}
+                        step={0.1}
+                        max={this.state.duration}
+                        value={this.state['time-pos']}
+                        onChange={this.handleSeek}
+                        onMouseDown={this.handleSeekMouseDown}
+                        onMouseUp={this.handleSeekMouseUp}
+                      />
+                      <span className={classes.time}>
+                        {this.state.durationStamp}
+                      </span>
+                      <button
+                        className={classes.control}
+                        onClick={this.handleLoad}
+                      >
+                        <FontAwesomeIcon size="sm" icon={faFolderOpen} />
+                      </button>
+                      <button
+                        className={classes.control}
+                        onClick={this.handleFullScreenToggle}
+                      >
+                        <FontAwesomeIcon size="sm" icon={faCompress} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </>
@@ -337,7 +354,7 @@ class Renderer extends React.Component {
           </div>
         </div>
         <div className={classes.showInfo}>
-          {this.props.location.state && this.props.location.state.epTitle}
+          {'this.props.location.state && this.props.location.state.epTitle'}
         </div>
       </div>
     );

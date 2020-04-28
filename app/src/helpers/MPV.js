@@ -110,11 +110,15 @@ class ReactMPV extends React.Component {
 
   render() {
     return (
-      <div>
+      <div
+        onMouseDown={(e) => e.target.blur()}
+        onKeyDown={(e) => e.preventDefault()}
+      >
         <embed
           style={{ height: '70vh', width: '100vw' }}
           type={PLUGIN_MIME_TYPE}
           ref={this.plugin}
+          onKeyDown={(e) => e.preventDefault()}
         />
       </div>
     );

@@ -17,6 +17,7 @@ const DownloadsListElement = ({ showInfo }) => {
 
   return (
     <div>
+      <div style={{ height: '80px' }}></div>
       {showInfo.name}: speed: {showInfo.downloadSpeed} progress:{' '}
       {showInfo.progress}
       <button onClick={() => removeTorrent(showInfo.id)}>remove</button>

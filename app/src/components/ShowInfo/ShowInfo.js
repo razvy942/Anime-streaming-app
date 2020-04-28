@@ -98,7 +98,7 @@ const ShowInfo = (props) => {
   */
 
   return (
-    <div>
+    <div className={classes.infoPage}>
       <div className={classes.container}>
         {showInfo ? (
           <div>

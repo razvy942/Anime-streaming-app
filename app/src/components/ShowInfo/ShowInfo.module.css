@@ -1,8 +1,14 @@
+.infoPage {
+  height: 100vh;
+  overflow-y: scroll;
+}
+
 .container {
   width: 98vw;
   margin: 0 auto;
-
   margin-top: 90px;
+  margin-top: 20px;
+  margin-bottom: 30px;
 }
 
 h1 {

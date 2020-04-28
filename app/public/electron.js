@@ -1,5 +1,5 @@
 const path = require('path');
-const { BrowserWindow, app, ipcMain } = require('electron');
+const { BrowserWindow, app, ipcMain, shell } = require('electron');
 const { getPluginEntry } = require('mpv.js');
 
 const isDev = require('electron-is-dev');
@@ -32,10 +32,11 @@ app.commandLine.appendSwitch('no-sandbox');
 
 app.on('ready', () => {
   const win = new BrowserWindow({
-    width: 1280,
-    height: 574,
+    minWidth: 1280,
+    minHeight: 1000,
     autoHideMenuBar: true,
     webPreferences: { plugins: true, nodeIntegration: true },
+    frame: false,
   });
   // win.loadURL(`file://${__dirname}/index.html`);
   win.loadURL(
@@ -43,6 +44,10 @@ app.on('ready', () => {
       ? 'http://localhost:3000/'
       : `file://${path.join(__dirname, '../build/index.html')}`
   );
+
+  win.webContents.on('new-window', function (event, url) {
+    event.preventDefault();
+  });
 
   if (isDev) win.webContents.openDevTools();
 });
