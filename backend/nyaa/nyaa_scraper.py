@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import pprint
 import anitopy
 
-from NyaaPantsu import nyaasi
 
 class NyaaScraper:
     def __init__(self):
@@ -97,7 +96,6 @@ class NyaaScraper:
 
 if __name__ == '__main__':
     scraper = NyaaScraper()
-    nyaaParser = nyaasi.NyaaSi()
     results = []
     try:
         results = scraper.search('Kono Subarashii Sekai ni Shukufuku wo! 01')

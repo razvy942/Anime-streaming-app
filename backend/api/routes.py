@@ -4,19 +4,19 @@ import pprint
 import requests
 from difflib import SequenceMatcher
 
-from HorribleSubs import bp, pg_db, series_db, parser, nyaa, jikan, kitsu, nyaaScrap
+from api import bp, pg_db, series_db, parser, kitsu, nyaa_scrap
 
-@bp.route('/horriblesubs/get-all', methods=['GET'])
+@bp.route('/get-all', methods=['GET'])
 def get_main_page():
     current_page = int(request.args.get('page', '1'))
     return jsonify(pg_db[current_page])
 
-@bp.route('/horriblesubs/get-latest-releases')
+@bp.route('/get-latest-releases')
 def get_latest_releases():
     parser.get_latest()
     pass
 
-@bp.route('/horriblesubs/get-current-season')
+@bp.route('/get-current-season')
 def get_current_season():
     parser.get_current_season_releases()
     data = {}
@@ -53,37 +53,25 @@ def get_current_season():
 
     return jsonify(data)
 
-@bp.route('/horriblesubs/get-show/<title>')
-def get_show(title):
-    info = jikan.search(title)
-    # info[title] = series_db[title]
-
-    return jsonify(info)
-
-
 # TODO: Create database to store shows and their links in for easier search
-@bp.route('/horriblesubs/search')
+@bp.route('/search')
 def search_horriblesubs():
     show_name = request.args.get('q')
     show = {show_name: parser.shows_dict.get(show_name, 'not found')}
     return jsonify(show)
 
-# @bp.route('/horriblesubs/get-episodes/<mal_id>')
-# def get_episodes(mal_id):
-#     episodes = jikan.get_episodes(mal_id)
-#     return jsonify(episodes)
 
-@bp.route('/horriblesubs/get-episode/<title>/<episode_number>')
+@bp.route('/get-episode/<title>/<episode_number>')
 def get_ep(title, episode_number):
     # shows = nyaa.get_magnet(title, episode_number)
     if episode_number == 'movie':
-        info = nyaaScrap.search(title, episode_number, is_movie=True)
+        info = nyaa_scrap.search(title, episode_number, is_movie=True)
     else:
-        info = nyaaScrap.search(f'{title} - {episode_number}', episode_number)
+        info = nyaa_scrap.search(f'{title} - {episode_number}', episode_number)
   
     return jsonify({title: info})
 
-@bp.route('/horriblesubs/get-info/<title>')
+@bp.route('/get-info/<title>')
 def get_info(title):
     info = kitsu.search(title)
     data = {}
@@ -93,12 +81,12 @@ def get_info(title):
 
     return jsonify(info)
 
-@bp.route('/horriblesubs/get-episodes')
+@bp.route('/get-episodes')
 def get_episodes():
     episodes = kitsu.get_episodes()
     return jsonify(episodes)
 
-@bp.route('/horriblesubs/get-characters')
+@bp.route('/get-characters')
 def get_characters():
     characters = kitsu.get_characters()
     return jsonify(characters)

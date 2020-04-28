@@ -4,6 +4,9 @@ from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
 import time
 
+'''
+    Scrapes content from horriblesubs that is loaded dynamically, requires usage of selenium
+'''
 MAX_WAIT_TIME = 10
 
 options = Options()

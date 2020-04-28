@@ -1,9 +1,9 @@
 import unittest
-import nyaaApi, nyaasi, nyaaScraper
+from nyaa import nyaa_scraper
 
 class PantsuAPITest(unittest.TestCase):
     def setUp(self):
-        self.scraper = nyaaScraper.NyaaScraper()
+        self.scraper = nyaa_scraper.NyaaScraper()
         
     def test_get_search_results(self):
         expected_res = {

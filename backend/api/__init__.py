@@ -2,15 +2,17 @@ import os
 from flask import Flask, Blueprint
 from flask_cors import CORS, cross_origin
 import json
-from HorribleSubs import horribleParser
-from NyaaPantsu import nyaaApi, nyaaScraper
-from ApiBindings import jikan as jikanApi, kitsu as kitsuApi
+
+from horrible_subs import horrible_parser
+from nyaa import nyaa_scraper
+from api_bindings import kitsu_bindings 
 
 
-# app = Flask(__name__)
 bp = Blueprint("HorribleSubs", __name__)
-# app.config.from_pyfile(os.path.join('..', 'env.cfg'))
-# CORS(app, resources={r"/*": {"origins": "*"}})
+
+parser = horrible_parser.HorribleSubsParser()
+nyaa_scrap = nyaa_scraper.NyaaScraper()
+kitsu = kitsu_bindings.Kitsu()
 
 # TODO: database setup, etc...
 with open('kitsu-db.json') as db:
@@ -28,11 +30,7 @@ def paginate_series_db(series_db):
     return paginated_db
 pg_db = paginate_series_db(series_db)
 
-parser = horribleParser.HorribleSubsParser()
-nyaa = nyaaApi.NyaaPantsu()
-nyaaScrap = nyaaScraper.NyaaScraper()
-jikan = jikanApi.Jikan()
-kitsu = kitsuApi.Kitsu()
 
-from HorribleSubs import routes
+
+
 
