@@ -3,17 +3,24 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-# from api import routes, bp as horriblebp
 from backend.api.series_info import controller as series_controller
 from backend.api.torrents import controller as torrent_controller
+from backend.extensions import db
 
-app = Flask(__name__)
-app.config.from_pyfile(os.path.join('env.cfg'))
-CORS(app, resources={r"/*": {"origins": "*"}})
+def create_app(config_object=None):
+    app = Flask(__name__)
+    app.config.from_pyfile(os.path.join('env.cfg'))
+    register_extensions(app)
+    register_blueprints(app)
+    return app
 
-db = SQLAlchemy(app)
-# db.create_all()
 
-app.register_blueprint(series_controller.bp)
-app.register_blueprint(torrent_controller.bp) 
+def register_blueprints(app):
+    app.register_blueprint(series_controller.bp)
+    app.register_blueprint(torrent_controller.bp) 
+
+def register_extensions(app):
+    db.init_app(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
+
 

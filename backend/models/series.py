@@ -1,16 +1,5 @@
 from backend.extensions import db
 
-watching = db.Table('watch_queue',
-    db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-    db.Column('series_id', db.Integer, db.ForeignKey('series.id'))
-)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(60), nullable=False)
-    watch_queue = db.relationship('Series', secondary=watching, backref=db.backref('viewers', lazy= 'dynamic'))
-
 class Series(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     kitsu_id = db.Column(db.Integer, nullable=False)
@@ -18,6 +7,7 @@ class Series(db.Model):
     en_title = db.Column(db.String(120), unique=True, nullable=False)
     en_jp_title = db.Column(db.String(120), unique=True, nullable=False)
     attributes = db.relationship('Attributes', backref='series', lazy=True)
+    watched_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 
 class Attributes(db.Model):
