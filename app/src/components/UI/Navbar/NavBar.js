@@ -120,7 +120,7 @@ const NavBar = (props) => {
           {modal}
         </span>
       </div> */}
-      <div className={classes.windowOptions}>
+      {/* <div className={classes.windowOptions}>
         <button onClick={minimizeWindow} className={classes.windowControl}>
           <FontAwesomeIcon size="md" icon={faWindowMinimize} />
         </button>
@@ -133,7 +133,7 @@ const NavBar = (props) => {
         >
           <FontAwesomeIcon size="md" icon={faTimes} />
         </button>
-      </div>
+      </div> */}
     </nav>
   );
 };

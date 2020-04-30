@@ -1,7 +1,7 @@
 import path from 'path';
 import React from 'react';
 // import { ReactMPV } from 'mpv.js';
-import ReactMPV from '../../helpers/NewMpv';
+import ReactMPV from '../../helpers/MPV';
 import { remote } from 'electron';
 import classes from './Player.module.css';
 import { withRouter } from 'react-router-dom';
@@ -105,7 +105,7 @@ class Renderer extends React.Component {
   };
 
   componentDidMount() {
-    document.addEventListener('keydown', this.handleKeyDown, false);
+    //document.addEventListener('keydown', this.handleKeyDown, false);
 
     if (this.props.location.state) {
       this.fileCheckerInterval = setInterval(() => {
@@ -122,7 +122,7 @@ class Renderer extends React.Component {
     }, 200);
   }
   componentWillUnmount() {
-    document.removeEventListener('keydown', this.handleKeyDown, false);
+    // document.removeEventListener('keydown', this.handleKeyDown, false);
     clearInterval(this.fileCheckerInterval);
     clearInterval(this.createTimeStampInterval);
   }
@@ -131,18 +131,32 @@ class Renderer extends React.Component {
     e.preventDefault();
     if (e.key === 'f' || (e.key === 'Escape' && this.state.fullscreen)) {
       this.toggleFullscreen();
-    } else if (e.key === ' ') {
-      this.setState({ pause: !this.state.pause });
-      this.mpv.property('pause', this.state.pause);
+      // } else if (e.key === ' ') {
+      //   this.setState({ pause: !this.state.pause });
+      //   this.mpv.property('pause', this.state.pause);
     } else if (this.state.duration) {
       this.mpv.keypress(e);
     }
+    // if (e.key === 'i') {
+    //   console.log('info');
+    //   let info = this.mpv.command('property', 'time-pos');
+    //   console.log(info);
+    // }
   };
 
   handleMPVReady = (mpv) => {
     this.mpv = mpv;
     const observe = mpv.observe.bind(mpv);
-    ['pause', 'time-pos', 'duration', 'eof-reached'].forEach(observe);
+    [
+      'pause',
+      'time-pos',
+      'duration',
+      'eof-reached',
+      'path',
+      'video-format',
+      'audio-params/channels',
+      'track-list/count',
+    ].forEach(observe);
     this.mpv.property('hwdec', 'auto');
     //this.mpv.command('loadfile', '.\\vid.mkv');
     let vidPath = '\\vid.mkv';
@@ -312,14 +326,16 @@ class Renderer extends React.Component {
             {this.state.isFileCreated ? (
               <>
                 <div
-                  style={{ height: '100%', width: '100%' }}
+                  style={{ height: '70vh', width: '100%' }}
                   ref={this.nodeRef}
+                  onKeyDown={this.handleKeyDown}
                 >
                   <ReactMPV
                     className={classes.player}
                     onReady={this.handleMPVReady}
                     onPropertyChange={this.handlePropertyChange}
                     onMouseDown={(e) => this.handleClick(e)}
+                    playerHeight={this.state.fullscreen ? '100vh' : '70vh'}
                   />
 
                   <div

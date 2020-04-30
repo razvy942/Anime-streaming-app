@@ -1,8 +1,3 @@
-/**
- * Corresponding JS part of mpv pepper plugin.
- * @module mpv.js
- */
-
 import React from 'react';
 
 /**
@@ -70,6 +65,8 @@ class ReactMPV extends React.Component {
     )
       return;
 
+    let res = this._postData('observe_property', 'path');
+    console.log(res);
     this.command('keypress', key);
   }
 
@@ -95,7 +92,16 @@ class ReactMPV extends React.Component {
 
   _handleMessage(e) {
     const msg = e.data;
+    console.log(msg);
     const { type, data } = msg;
+
+    let tracks;
+    if (data && data.name === 'track-list/count') tracks = data.value;
+    for (let i = 0; i < tracks; i++) {
+      this.observe(`track-list/${i}/type`);
+      this.observe(`track-list/${i}/title`);
+    }
+
     if (type === 'property_change' && this.props.onPropertyChange) {
       const { name, value } = data;
       this.props.onPropertyChange(name, value);
@@ -111,14 +117,13 @@ class ReactMPV extends React.Component {
   render() {
     return (
       <div
-        onMouseDown={(e) => e.target.blur()}
-        onKeyDown={(e) => e.preventDefault()}
+      //onMouseDown={(e) => e.target.blur()}
+      //onKeyDown={this.props.handleKeyDown}
       >
         <embed
-          style={{ height: '70vh', width: '100vw' }}
+          style={{ height: this.props.playerHeight, width: '100%' }}
           type={PLUGIN_MIME_TYPE}
           ref={this.plugin}
-          onKeyDown={(e) => e.preventDefault()}
         />
       </div>
     );
