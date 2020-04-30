@@ -14,6 +14,10 @@ import {
   faFolderOpen,
   faSquare,
   faHistory,
+  faForward,
+  faVolumeUp,
+  faVolumeDown,
+  faVolumeMute,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { UserContext } from '../../store/store';
@@ -30,6 +34,7 @@ class Renderer extends React.Component {
     isFileCreated: false,
     showControls: false,
     controlsTime: 1500,
+    volume: 100,
   };
 
   mpv = null;
@@ -152,10 +157,10 @@ class Renderer extends React.Component {
       'time-pos',
       'duration',
       'eof-reached',
-      'path',
       'video-format',
       'audio-params/channels',
       'track-list/count',
+      'ao-volume',
     ].forEach(observe);
     this.mpv.property('hwdec', 'auto');
     //this.mpv.command('loadfile', '.\\vid.mkv');
@@ -203,6 +208,7 @@ class Renderer extends React.Component {
     // e.target.blur();
     if (!this.state.duration) return;
     this.mpv.property('pause', !this.state.pause);
+    this.mpv.property('speed', 1);
   };
   handleStop = (e) => {
     e.target.blur();
@@ -294,23 +300,22 @@ class Renderer extends React.Component {
     }, 200);
   };
 
+  handleVolume = (e) => {
+    e.target.blur();
+    const volumePos = +e.target.value;
+    // const currentTime = this.convertTimeStamp(timePos);
+    this.setState({ volume: volumePos });
+
+    this.mpv.property('ao-volume', volumePos);
+  };
+
   rewind = () => {
-    let currentTime = this.state['time-pos'];
-    currentTime -= 15;
-    this.setState({
-      'time-pos': currentTime,
-    });
-    this.mpv.property('time-pos', currentTime);
+    this.mpv.property('speed', 0.5);
+    this.mpv.property('ao-volume', 50);
   };
 
   advance = () => {
-    let currentTime = this.state['time-pos'];
-    currentTime += 15;
-
-    this.setState({
-      'time-pos': currentTime,
-    });
-    this.mpv.property('time-pos', currentTime);
+    this.mpv.property('speed', 2);
   };
 
   render() {
@@ -353,58 +358,94 @@ class Renderer extends React.Component {
                       onMouseLeave={this.handleMouseOutControls}
                       className={classes.controls}
                     >
-                      <button className={classes.control} onClick={this.rewind}>
-                        <FontAwesomeIcon size="sm" icon={faHistory} />
-                      </button>
-                      <button
-                        className={classes.control}
-                        onClick={this.togglePause}
-                      >
-                        {this.state.pause ? (
-                          <FontAwesomeIcon size="sm" icon={faPlay} />
-                        ) : (
-                          <FontAwesomeIcon size="sm" icon={faPause} />
-                        )}
-                      </button>
-                      <button
-                        className={classes.control}
-                        onClick={this.advance}
-                      >
-                        <FontAwesomeIcon
-                          size="sm"
-                          icon={faHistory}
-                          flip="horizontal"
+                      <div className={classes.upper}>
+                        <div className={classes.audioControls}>
+                          <span className={classes.audioControl}>
+                            <FontAwesomeIcon
+                              size='xs'
+                              icon={
+                                this.state.volume > 0
+                                  ? this.state.volume > 50
+                                    ? faVolumeUp
+                                    : faVolumeDown
+                                  : faVolumeMute
+                              }
+                            />
+                          </span>
+                          <input
+                            className={classes.volumeSeek}
+                            type='range'
+                            min={0}
+                            step={0.1}
+                            max={100}
+                            value={this.state.volume}
+                            onChange={this.handleVolume}
+                            onMouseDown={this.handleVolumeMouseDown}
+                            onMouseUp={this.handleVolumeMouseUp}
+                          />
+                        </div>
+                        <div className={classes.playbackControls}>
+                          <button
+                            className={classes.control}
+                            onClick={this.rewind}
+                          >
+                            <FontAwesomeIcon
+                              size='xs'
+                              flip='horizontal'
+                              icon={faForward}
+                            />
+                          </button>
+                          <button
+                            className={classes.control}
+                            onClick={this.togglePause}
+                          >
+                            {this.state.pause ? (
+                              <FontAwesomeIcon size='1x' icon={faPlay} />
+                            ) : (
+                              <FontAwesomeIcon size='1x' icon={faPause} />
+                            )}
+                          </button>
+                          <button
+                            className={classes.control}
+                            onClick={this.advance}
+                          >
+                            <FontAwesomeIcon size='xs' icon={faForward} />
+                          </button>
+                        </div>
+                        <div className={classes.miscControls}>
+                          <button
+                            className={classes.control}
+                            onClick={this.handleLoad}
+                          >
+                            <FontAwesomeIcon size='xs' icon={faFolderOpen} />
+                          </button>
+                          <button
+                            className={classes.control}
+                            onClick={this.handleFullScreenToggle}
+                          >
+                            <FontAwesomeIcon size='xs' icon={faCompress} />
+                          </button>
+                        </div>
+                      </div>
+                      <div className={classes.lower}>
+                        <span className={classes.time}>
+                          {this.state.currentTime}
+                        </span>
+                        <input
+                          className={classes.seek}
+                          type='range'
+                          min={0}
+                          step={0.1}
+                          max={this.state.duration}
+                          value={this.state['time-pos']}
+                          onChange={this.handleSeek}
+                          onMouseDown={this.handleSeekMouseDown}
+                          onMouseUp={this.handleSeekMouseUp}
                         />
-                      </button>
-                      <span className={classes.time}>
-                        {this.state.currentTime}
-                      </span>
-                      <input
-                        className={classes.seek}
-                        type="range"
-                        min={0}
-                        step={0.1}
-                        max={this.state.duration}
-                        value={this.state['time-pos']}
-                        onChange={this.handleSeek}
-                        onMouseDown={this.handleSeekMouseDown}
-                        onMouseUp={this.handleSeekMouseUp}
-                      />
-                      <span className={classes.time}>
-                        {this.state.durationStamp}
-                      </span>
-                      <button
-                        className={classes.control}
-                        onClick={this.handleLoad}
-                      >
-                        <FontAwesomeIcon size="sm" icon={faFolderOpen} />
-                      </button>
-                      <button
-                        className={classes.control}
-                        onClick={this.handleFullScreenToggle}
-                      >
-                        <FontAwesomeIcon size="sm" icon={faCompress} />
-                      </button>
+                        <span className={classes.time}>
+                          {this.state.durationStamp}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>

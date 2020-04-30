@@ -52,7 +52,9 @@ if (process.platform !== 'linux') {
 app.commandLine.appendSwitch('ignore-gpu-blacklist');
 app.commandLine.appendSwitch(
   'register-pepper-plugins',
-  getPluginEntry(pluginDir)
+  process.platform === 'darwin'
+    ? getPluginEntry(pluginDir, 'mpvjs.mac.node')
+    : getPluginEntry(pluginDir)
 );
 
 // Needed because NaCL is deprecated in since electron 4.2.9
@@ -60,8 +62,8 @@ app.commandLine.appendSwitch('no-sandbox');
 
 app.on('ready', () => {
   const win = new BrowserWindow({
-    minWidth: 1280,
-    minHeight: 1000,
+    minWidth: 1000,
+    minHeight: 700,
     autoHideMenuBar: true,
     webPreferences: { plugins: true, nodeIntegration: true },
   });

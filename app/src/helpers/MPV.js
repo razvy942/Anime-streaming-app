@@ -6,6 +6,10 @@ import React from 'react';
 const PLUGIN_MIME_TYPE = 'application/x-mpvjs';
 
 class ReactMPV extends React.Component {
+  state = {
+    tracks: {},
+  };
+
   command(cmd, ...args) {
     args = args.map((arg) => arg.toString());
     this._postData('command', [cmd].concat(args));
@@ -65,8 +69,7 @@ class ReactMPV extends React.Component {
     )
       return;
 
-    let res = this._postData('observe_property', 'path');
-    console.log(res);
+    console.log(this.tracksObj);
     this.command('keypress', key);
   }
 
@@ -90,16 +93,41 @@ class ReactMPV extends React.Component {
     this.node().postMessage(msg);
   }
 
+  tracksObj = {
+    sub: {},
+    audio: {},
+    video: {},
+  };
+
   _handleMessage(e) {
     const msg = e.data;
-    console.log(msg);
+
+    if (msg.data) {
+      if (msg.data.name.match(/track-list\/\d+/g)) {
+        let tokens = msg.data.name.split('/');
+        if (tokens[2] === 'type') {
+          this.tracksObj[msg.data.value][tokens[1]] = [];
+        } else {
+          this.tracksObj[tokens[2]][tokens[1]].push(msg.data.value);
+        }
+      }
+    }
+
+    if (msg.data && msg.data.name !== 'time-pos') console.log(msg);
     const { type, data } = msg;
 
-    let tracks;
-    if (data && data.name === 'track-list/count') tracks = data.value;
-    for (let i = 0; i < tracks; i++) {
-      this.observe(`track-list/${i}/type`);
-      this.observe(`track-list/${i}/title`);
+    if (data && data.name === 'track-list/count') {
+      this.tracksObj = {
+        sub: {},
+        audio: {},
+        video: {},
+      };
+      let tracks = data.value;
+      for (let i = 0; i < tracks; i++) {
+        this.observe(`track-list/${i}/type`);
+        this.observe(`track-list/${i}/title`);
+        this.observe(`track-list/${i}/lang`);
+      }
     }
 
     if (type === 'property_change' && this.props.onPropertyChange) {
@@ -116,12 +144,9 @@ class ReactMPV extends React.Component {
 
   render() {
     return (
-      <div
-      //onMouseDown={(e) => e.target.blur()}
-      //onKeyDown={this.props.handleKeyDown}
-      >
+      <div style={{ height: this.props.playerHeight, width: '100%' }}>
         <embed
-          style={{ height: this.props.playerHeight, width: '100%' }}
+          style={{ height: '100%', width: '100%' }}
           type={PLUGIN_MIME_TYPE}
           ref={this.plugin}
         />

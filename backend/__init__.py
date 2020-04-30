@@ -21,6 +21,7 @@ def register_blueprints(app):
 
 def register_extensions(app):
     db.init_app(app)
+    # db.create_all(app=app)
     CORS(app, resources={r"/*": {"origins": "*"}})
 
 
