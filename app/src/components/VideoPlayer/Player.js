@@ -1,6 +1,5 @@
 import path from 'path';
 import React from 'react';
-// import { ReactMPV } from 'mpv.js';
 import ReactMPV from '../../helpers/MPV';
 import { remote } from 'electron';
 import classes from './Player.module.css';
@@ -18,6 +17,7 @@ import {
   faVolumeUp,
   faVolumeDown,
   faVolumeMute,
+  faCog,
 } from '@fortawesome/free-solid-svg-icons';
 
 import { UserContext } from '../../store/store';
@@ -35,6 +35,7 @@ class Renderer extends React.Component {
     showControls: false,
     controlsTime: 1500,
     volume: 100,
+    leftMargin: '0px',
   };
 
   mpv = null;
@@ -109,9 +110,20 @@ class Renderer extends React.Component {
     });
   };
 
+  centerControls = () => {
+    let innerWidth = window.innerWidth;
+    console.log(innerWidth);
+    let leftMargin = (innerWidth - 600) / 2;
+
+    this.setState({
+      leftMargin: leftMargin,
+    });
+  };
+
   componentDidMount() {
     //document.addEventListener('keydown', this.handleKeyDown, false);
-
+    this.centerControls();
+    window.addEventListener('resize', this.centerControls);
     if (this.props.location.state) {
       this.fileCheckerInterval = setInterval(() => {
         this.checkForFile();
@@ -128,6 +140,7 @@ class Renderer extends React.Component {
   }
   componentWillUnmount() {
     // document.removeEventListener('keydown', this.handleKeyDown, false);
+    window.removeEventListener('resize', this.centerControls);
     clearInterval(this.fileCheckerInterval);
     clearInterval(this.createTimeStampInterval);
   }
@@ -286,16 +299,16 @@ class Renderer extends React.Component {
   clickTimeout;
 
   handleClick = (e) => {
+    console.log('hai');
     e.target.blur();
     clearTimeout(this.clickTimeout);
     this.clickCount += 1;
+    if (this.clickCount > 1) {
+      this.toggleFullscreen();
+      console.log(e);
+    }
+
     this.clickTimeout = setTimeout(() => {
-      if (this.clickCount > 1) {
-        this.toggleFullscreen();
-        console.log(e);
-      } else {
-        this.togglePause(e);
-      }
       this.clickCount = 0;
     }, 200);
   };
@@ -311,7 +324,6 @@ class Renderer extends React.Component {
 
   rewind = () => {
     this.mpv.property('speed', 0.5);
-    this.mpv.property('ao-volume', 50);
   };
 
   advance = () => {
@@ -344,6 +356,7 @@ class Renderer extends React.Component {
                   />
 
                   <div
+                    style={{ left: this.state.leftMargin }}
                     className={
                       this.state.showControls
                         ? classes.controlsContainer
@@ -362,7 +375,7 @@ class Renderer extends React.Component {
                         <div className={classes.audioControls}>
                           <span className={classes.audioControl}>
                             <FontAwesomeIcon
-                              size='xs'
+                              size="xs"
                               icon={
                                 this.state.volume > 0
                                   ? this.state.volume > 50
@@ -374,7 +387,7 @@ class Renderer extends React.Component {
                           </span>
                           <input
                             className={classes.volumeSeek}
-                            type='range'
+                            type="range"
                             min={0}
                             step={0.1}
                             max={100}
@@ -386,30 +399,39 @@ class Renderer extends React.Component {
                         </div>
                         <div className={classes.playbackControls}>
                           <button
-                            className={classes.control}
+                            className={[
+                              classes.control,
+                              classes.speedControl,
+                            ].join(' ')}
                             onClick={this.rewind}
                           >
                             <FontAwesomeIcon
-                              size='xs'
-                              flip='horizontal'
+                              size="xs"
+                              flip="horizontal"
                               icon={faForward}
                             />
                           </button>
                           <button
-                            className={classes.control}
+                            className={[
+                              classes.control,
+                              classes.pauseControl,
+                            ].join(' ')}
                             onClick={this.togglePause}
                           >
                             {this.state.pause ? (
-                              <FontAwesomeIcon size='1x' icon={faPlay} />
+                              <FontAwesomeIcon size="1x" icon={faPlay} />
                             ) : (
-                              <FontAwesomeIcon size='1x' icon={faPause} />
+                              <FontAwesomeIcon size="1x" icon={faPause} />
                             )}
                           </button>
                           <button
-                            className={classes.control}
+                            className={[
+                              classes.control,
+                              classes.speedControl,
+                            ].join(' ')}
                             onClick={this.advance}
                           >
-                            <FontAwesomeIcon size='xs' icon={faForward} />
+                            <FontAwesomeIcon size="xs" icon={faForward} />
                           </button>
                         </div>
                         <div className={classes.miscControls}>
@@ -417,13 +439,19 @@ class Renderer extends React.Component {
                             className={classes.control}
                             onClick={this.handleLoad}
                           >
-                            <FontAwesomeIcon size='xs' icon={faFolderOpen} />
+                            <FontAwesomeIcon size="xs" icon={faFolderOpen} />
                           </button>
                           <button
                             className={classes.control}
                             onClick={this.handleFullScreenToggle}
                           >
-                            <FontAwesomeIcon size='xs' icon={faCompress} />
+                            <FontAwesomeIcon size="xs" icon={faCompress} />
+                          </button>
+                          <button
+                            className={classes.control}
+                            onClick={this.handleFullScreenToggle}
+                          >
+                            <FontAwesomeIcon size="xs" icon={faCog} />
                           </button>
                         </div>
                       </div>
@@ -433,7 +461,7 @@ class Renderer extends React.Component {
                         </span>
                         <input
                           className={classes.seek}
-                          type='range'
+                          type="range"
                           min={0}
                           step={0.1}
                           max={this.state.duration}
