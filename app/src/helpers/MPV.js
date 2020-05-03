@@ -25,6 +25,7 @@ class ReactMPV extends React.Component {
   }
 
   keypress({ key, shiftKey, ctrlKey, altKey }) {
+    console.log('keyed');
     // Don't need modifier events.
     if (
       [
@@ -69,6 +70,9 @@ class ReactMPV extends React.Component {
     )
       return;
 
+    // this.observe('track-list/count');
+    // this.observe('ao-volume');
+    this.observe('cursor-autohide');
     console.log(this.tracksObj);
     this.command('keypress', key);
   }
@@ -93,29 +97,25 @@ class ReactMPV extends React.Component {
     this.node().postMessage(msg);
   }
 
-  tracksObj = {
-    sub: {},
-    audio: {},
-    video: {},
-  };
-
   _handleMessage(e) {
     const msg = e.data;
+    const { type, data } = msg;
+    if (msg.data && msg.data.name !== 'time-pos') console.log(msg);
 
-    if (msg.data) {
-      if (msg.data.name.match(/track-list\/\d+/g)) {
-        let tokens = msg.data.name.split('/');
-        if (tokens[2] === 'type') {
-          this.tracksObj[msg.data.value][tokens[1]] = [];
-        } else {
-          this.tracksObj[tokens[2]][tokens[1]].push(msg.data.value);
-        }
-      }
+    if (data) {
+      this.getTracks(data);
+      this.parseTrackInfo(data);
     }
 
-    if (msg.data && msg.data.name !== 'time-pos') console.log(msg);
-    const { type, data } = msg;
+    if (type === 'property_change' && this.props.onPropertyChange) {
+      const { name, value } = data;
+      this.props.onPropertyChange(name, value);
+    } else if (type === 'ready' && this.props.onReady) {
+      this.props.onReady(this);
+    }
+  }
 
+  getTracks(data) {
     if (data && data.name === 'track-list/count') {
       this.tracksObj = {
         sub: {},
@@ -129,22 +129,67 @@ class ReactMPV extends React.Component {
         this.observe(`track-list/${i}/lang`);
       }
     }
+  }
 
-    if (type === 'property_change' && this.props.onPropertyChange) {
-      const { name, value } = data;
-      this.props.onPropertyChange(name, value);
-    } else if (type === 'ready' && this.props.onReady) {
-      this.props.onReady(this);
+  // 1: sub, 2:sub, 3:audio, ...
+  trackMapping = {};
+  tracksObj = {
+    sub: {},
+    audio: {},
+    video: {},
+  };
+
+  parseTrackInfo(data) {
+    if (data.name.match(/track-list\/\d+\/type/g)) {
+      let tokens = data.name.split('/');
+      let trackNum = tokens[1];
+      // audio, sub, video
+      let value = data.value;
+      // Create empty object to add tracks to
+      if (!this.tracksObj[value][trackNum]) {
+        let valObj = {
+          title: undefined,
+          language: undefined,
+        };
+        this.tracksObj[value][trackNum] = valObj;
+      }
+      this.trackMapping[trackNum] = value;
+    }
+
+    if (data.name.match(/track-list\/\d+\/title/g)) {
+      this._parseTrackInfoHelper(data, 'title');
+    }
+
+    if (data.name.match(/track-list\/\d+\/lang/g)) {
+      this._parseTrackInfoHelper(data, 'language');
+    }
+  }
+
+  _parseTrackInfoHelper(data, type) {
+    let tokens = data.name.split('/');
+    let trackNum = tokens[1];
+    let value = data.value;
+    try {
+      this.tracksObj[this.trackMapping[trackNum]][trackNum][type] = value;
+    } catch (err) {
+      console.error(`Error parsing tracks...${err}`);
     }
   }
 
   componentDidMount() {
     this.node().addEventListener('message', this._handleMessage.bind(this));
+    this.observe('track-list/count');
   }
 
   render() {
     return (
-      <div style={{ height: this.props.playerHeight, width: '100%' }}>
+      <div
+        style={{
+          height: this.props.playerHeight,
+          width: '100%',
+          pointerEvents: 'none',
+        }}
+      >
         <embed
           style={{ height: '100%', width: '100%' }}
           type={PLUGIN_MIME_TYPE}

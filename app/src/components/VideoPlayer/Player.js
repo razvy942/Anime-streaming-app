@@ -33,14 +33,20 @@ class Renderer extends React.Component {
     fullscreen: false,
     isFileCreated: false,
     showControls: false,
-    controlsTime: 1500,
+    controlsTime: 3000,
     volume: 100,
     leftMargin: '0px',
   };
 
   mpv = null;
+  nodeRef = React.createRef();
+
   fileCheckerInterval;
   createTimeStampInterval;
+  controlsVisibilityTimer;
+  mouseVisibilityTimer;
+  clickCount = 0;
+  clickTimeout;
 
   convertTimeStamp = (totalDuration = false) => {
     let timeStamp;
@@ -154,6 +160,8 @@ class Renderer extends React.Component {
       //   this.mpv.property('pause', this.state.pause);
     } else if (this.state.duration) {
       this.mpv.keypress(e);
+    } else {
+      this.mpv.keypress(e);
     }
     // if (e.key === 'i') {
     //   console.log('info');
@@ -182,6 +190,7 @@ class Renderer extends React.Component {
       vidPath = this.props.location.state.path;
     }
     this.mpv.command('loadfile', vidPath);
+    this.mpv.property('ao-volume', 100);
     setTimeout(() => {
       this.mpv.property('pause', false);
     }, 10);
@@ -259,10 +268,13 @@ class Renderer extends React.Component {
       });
   };
 
-  controlsVisibilityTimer = null;
-  nodeRef = React.createRef();
-
   handleMouseIn = () => {
+    clearTimeout(this.mouseVisibilityTimer);
+    document.body.style.cursor = 'default';
+    this.mouseVisibilityTimer = setTimeout(() => {
+      document.body.style.cursor = 'none';
+    }, 3000);
+
     if (this.controlsVisibilityTimer)
       clearTimeout(this.controlsVisibilityTimer);
 
@@ -285,18 +297,17 @@ class Renderer extends React.Component {
 
   handleMouseOutControls = () => {
     this.setState({
-      controlsTime: 1500,
+      controlsTime: 3000,
     });
   };
 
   handleMouseOut = () => {
+    clearTimeout(this.mouseVisibilityTimer);
+    document.body.style.cursor = 'default';
     this.setState({
       showControls: false,
     });
   };
-
-  clickCount = 0;
-  clickTimeout;
 
   handleClick = (e) => {
     console.log('hai');
@@ -316,9 +327,7 @@ class Renderer extends React.Component {
   handleVolume = (e) => {
     e.target.blur();
     const volumePos = +e.target.value;
-    // const currentTime = this.convertTimeStamp(timePos);
     this.setState({ volume: volumePos });
-
     this.mpv.property('ao-volume', volumePos);
   };
 
@@ -332,7 +341,7 @@ class Renderer extends React.Component {
 
   render() {
     return (
-      <div>
+      <div onKeyDown={this.handleKeyDown}>
         <div style={{ height: '45px' }}></div>
         <div className={classes.playerContainer}>
           <div
@@ -346,6 +355,22 @@ class Renderer extends React.Component {
                   style={{ height: '70vh', width: '100%' }}
                   ref={this.nodeRef}
                   onKeyDown={this.handleKeyDown}
+                  onClick={(e) => {
+                    e.target.blur();
+                    document.addEventListener(
+                      'keydown',
+                      this.handleKeyDown,
+                      false
+                    );
+                    this.handleClick(e);
+                  }}
+                  onMouseLeave={() => {
+                    document.removeEventListener(
+                      'keydown',
+                      this.handleKeyDown,
+                      false
+                    );
+                  }}
                 >
                   <ReactMPV
                     className={classes.player}
