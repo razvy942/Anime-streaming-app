@@ -6,3 +6,4 @@ geckodriver.log
 shows.txt
 env.cfg
 test.db
+db_builder.py

@@ -3,4 +3,5 @@
 __pycache__
 series-db.json
 shows-titles.json
+kitsu-db.json
 env

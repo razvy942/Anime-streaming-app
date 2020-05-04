@@ -5,77 +5,19 @@ import requests
 from difflib import SequenceMatcher
 
 from backend.horrible_subs import horrible_parser
-from backend.api_bindings import kitsu_bindings 
-from backend.api import pg_db
+from backend.external_api_bindings import kitsu_bindings 
+from backend.extensions import db
+from backend.models.model import Series, Attribute, CoverImage, PosterImage
 
 bp = Blueprint('SeriesInfo', __name__)
 parser = horrible_parser.HorribleSubsParser()
 kitsu = kitsu_bindings.Kitsu()
 
-@bp.route('/get-all', methods=['GET'])
-def get_main_page():
-    current_page = int(request.args.get('page', '1'))
-    return jsonify(pg_db[current_page])
-
+# TODO: Finish method to get new releases by date
 @bp.route('/get-latest-releases')
 def get_latest_releases():
     parser.get_latest()
     pass
-
-@bp.route('/get-current-season')
-def get_current_season():
-    parser.get_current_season_releases()
-    data = {}
-    append_data = False
-    new_data = {}
-    
-    for show in parser.current_season:
-        data[show] = series_db.get(show, '')
-        # If the show is not in local database, query kitsu api
-        if series_db.get(show, '') == '':
-            append_data = True
-            new_info = requests.get(f'https://kitsu.io/api/edge/anime?filter%5Btext%5D={show}').json()['data']
-            # Just check the first 2 hits, if we check anymore the accuracy seems to decrease
-            if (len(new_info) > 1):
-                title1 = new_info[0]['attributes']['canonicalTitle']
-                title2 = new_info[1]['attributes']['canonicalTitle']
-                if SequenceMatcher(None, show, title1).ratio() > SequenceMatcher(None, show, title2).ratio():
-                    data[show] =  new_info[0]
-                else:
-                    data[show] = new_info[1]
-            else:
-                data[show] =  new_info[0]
-            
-            # New data to append to db
-            new_data[show] = data[show]
-        # TODO: update local databse aswell
-      
-    if (append_data == True):
-        for i in new_data:
-           series_db.update({ i: new_data[i] })
-        with open('kitsu-db.json', 'w') as db:
-            print('appending new data...')
-            json.dump(series_db, db)
-
-    return jsonify(data)
-
-# TODO: Create database to store shows and their links in for easier search
-@bp.route('/search')
-def search_horriblesubs():
-    show_name = request.args.get('q')
-    show = {show_name: parser.shows_dict.get(show_name, 'not found')}
-    return jsonify(show)
-
-
-@bp.route('/get-info/<title>')
-def get_info(title):
-    info = kitsu.search(title)
-    data = {}
-    #info = kitsu.get_info()
-    # data['episodes'] = kitsu.get_episodes()
-    # data['characters'] = kitsu.get_characters()
-
-    return jsonify(info)
 
 @bp.route('/get-episodes')
 def get_episodes():
@@ -86,3 +28,52 @@ def get_episodes():
 def get_characters():
     characters = kitsu.get_characters()
     return jsonify(characters)
+
+@bp.route('/get-airing')
+def get_airing():
+    shows = db.session.query(Series, Attribute).filter(Attribute.status == 'current').order_by(Series.canonical_title).join(Attribute).all()
+    all_shows = []
+    _construct_dict_from_tuple_array(all_shows, shows)
+    return jsonify(all_shows)
+
+@bp.route('/get-all/<page>')
+def smth(page):
+    offset_amount = (int(page) - 1) * 15
+    shows = db.session.query(Series, PosterImage).order_by(Series.canonical_title).join(PosterImage).offset(offset_amount).limit(15)
+    all_shows = []
+    _construct_dict_from_tuple_array(all_shows, shows)
+    return jsonify(all_shows)
+
+@bp.route('/get-info/<id>')
+def get_info(id):
+    attributes = Attribute.query.get(int(id))
+    del attributes.__dict__['_sa_instance_state']
+    return jsonify(attributes.__dict__)
+
+@bp.route('/search/<name>')
+def search(name):
+    search_term = f'%{name}%'
+    shows_query = []
+    shows_query.append(Series.query.filter(Series.canonical_title.like(search_term)).all())
+    shows_query.append(Series.query.filter(Series.en_title.like(search_term)).all())
+    shows_query.append(Series.query.filter(Series.en_jp_title.like(search_term)).all())
+
+    all_shows = []
+    seen = []
+    for shows in shows_query:
+        for show in shows:
+            if show.kitsu_id in seen:
+                continue
+            show.__dict__.pop('_sa_instance_state', '')
+            all_shows.append(show.__dict__)
+            seen.append(show.kitsu_id)
+
+    return jsonify(all_shows)
+
+def _construct_dict_from_tuple_array(all_shows_arr, shows):
+    for show_tuple in shows:
+        del show_tuple[0].__dict__['_sa_instance_state']
+        del show_tuple[1].__dict__['_sa_instance_state']
+        show_tuple[0].__dict__['poster_image'] = show_tuple[1].__dict__
+
+        all_shows_arr.append(show_tuple[0].__dict__)

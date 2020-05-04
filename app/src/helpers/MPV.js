@@ -10,6 +10,8 @@ class ReactMPV extends React.Component {
     tracks: {},
   };
 
+  plugin = React.createRef();
+
   command(cmd, ...args) {
     args = args.map((arg) => arg.toString());
     this._postData('command', [cmd].concat(args));
@@ -85,8 +87,6 @@ class ReactMPV extends React.Component {
     this.node().remove();
   }
 
-  plugin = React.createRef();
-
   node() {
     //return this.refs.plugin;
     return this.plugin.current;
@@ -127,6 +127,7 @@ class ReactMPV extends React.Component {
         this.observe(`track-list/${i}/type`);
         this.observe(`track-list/${i}/title`);
         this.observe(`track-list/${i}/lang`);
+        this.observe(`track-list/${i}/selected`);
       }
     }
   }
@@ -162,6 +163,10 @@ class ReactMPV extends React.Component {
 
     if (data.name.match(/track-list\/\d+\/lang/g)) {
       this._parseTrackInfoHelper(data, 'language');
+    }
+
+    if (data.name.match(/track-list\/\d+\/selected/g)) {
+      this._parseTrackInfoHelper(data, 'selected');
     }
   }
 

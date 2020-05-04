@@ -5,22 +5,8 @@ import { remote } from 'electron';
 import classes from './Player.module.css';
 import { withRouter } from 'react-router-dom';
 import fs from 'fs';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCompress,
-  faPlay,
-  faPause,
-  faFolderOpen,
-  faSquare,
-  faHistory,
-  faForward,
-  faVolumeUp,
-  faVolumeDown,
-  faVolumeMute,
-  faCog,
-} from '@fortawesome/free-solid-svg-icons';
 
-import { UserContext } from '../../store/store';
+import VideoControls from './VideoControls';
 import Spinner from '../UI/Spinners/Spinner';
 
 class Renderer extends React.Component {
@@ -200,7 +186,11 @@ class Renderer extends React.Component {
     if (name === 'time-pos' && this.seeking) {
       return;
     } else if (name === 'eof-reached' && value) {
-      this.mpv.property('time-pos', 0);
+      if (this.state['time-pos'] === this.state.duration) {
+        console.log('buffering');
+      } else {
+        this.mpv.property('time-pos', 0);
+      }
     } else {
       this.setState({ [name]: value });
     }
@@ -259,7 +249,10 @@ class Renderer extends React.Component {
     remote.dialog
       .showOpenDialog({
         filters: [
-          { name: 'Videos', extensions: ['mkv', 'webm', 'mp4', 'mov', 'avi'] },
+          {
+            name: 'Videos',
+            extensions: ['mkv', 'webm', 'mp4', 'mov', 'avi', 'flac'],
+          },
           { name: 'All files', extensions: ['*'] },
         ],
       })
@@ -396,109 +389,23 @@ class Renderer extends React.Component {
                       onMouseLeave={this.handleMouseOutControls}
                       className={classes.controls}
                     >
-                      <div className={classes.upper}>
-                        <div className={classes.audioControls}>
-                          <span className={classes.audioControl}>
-                            <FontAwesomeIcon
-                              size="xs"
-                              icon={
-                                this.state.volume > 0
-                                  ? this.state.volume > 50
-                                    ? faVolumeUp
-                                    : faVolumeDown
-                                  : faVolumeMute
-                              }
-                            />
-                          </span>
-                          <input
-                            className={classes.volumeSeek}
-                            type="range"
-                            min={0}
-                            step={0.1}
-                            max={100}
-                            value={this.state.volume}
-                            onChange={this.handleVolume}
-                            onMouseDown={this.handleVolumeMouseDown}
-                            onMouseUp={this.handleVolumeMouseUp}
-                          />
-                        </div>
-                        <div className={classes.playbackControls}>
-                          <button
-                            className={[
-                              classes.control,
-                              classes.speedControl,
-                            ].join(' ')}
-                            onClick={this.rewind}
-                          >
-                            <FontAwesomeIcon
-                              size="xs"
-                              flip="horizontal"
-                              icon={faForward}
-                            />
-                          </button>
-                          <button
-                            className={[
-                              classes.control,
-                              classes.pauseControl,
-                            ].join(' ')}
-                            onClick={this.togglePause}
-                          >
-                            {this.state.pause ? (
-                              <FontAwesomeIcon size="1x" icon={faPlay} />
-                            ) : (
-                              <FontAwesomeIcon size="1x" icon={faPause} />
-                            )}
-                          </button>
-                          <button
-                            className={[
-                              classes.control,
-                              classes.speedControl,
-                            ].join(' ')}
-                            onClick={this.advance}
-                          >
-                            <FontAwesomeIcon size="xs" icon={faForward} />
-                          </button>
-                        </div>
-                        <div className={classes.miscControls}>
-                          <button
-                            className={classes.control}
-                            onClick={this.handleLoad}
-                          >
-                            <FontAwesomeIcon size="xs" icon={faFolderOpen} />
-                          </button>
-                          <button
-                            className={classes.control}
-                            onClick={this.handleFullScreenToggle}
-                          >
-                            <FontAwesomeIcon size="xs" icon={faCompress} />
-                          </button>
-                          <button
-                            className={classes.control}
-                            onClick={this.handleFullScreenToggle}
-                          >
-                            <FontAwesomeIcon size="xs" icon={faCog} />
-                          </button>
-                        </div>
-                      </div>
-                      <div className={classes.lower}>
-                        <span className={classes.time}>
-                          {this.state.currentTime}
-                        </span>
-                        <input
-                          className={classes.seek}
-                          type="range"
-                          min={0}
-                          step={0.1}
-                          max={this.state.duration}
-                          value={this.state['time-pos']}
-                          onChange={this.handleSeek}
-                          onMouseDown={this.handleSeekMouseDown}
-                          onMouseUp={this.handleSeekMouseUp}
-                        />
-                        <span className={classes.time}>
-                          {this.state.durationStamp}
-                        </span>
-                      </div>
+                      <VideoControls
+                        volume={this.state.volume}
+                        pause={this.state.pause}
+                        currentTime={this.state.currentTime}
+                        duration={this.state.duration}
+                        durationStamp={this.state.durationStamp}
+                        timePos={this.state['time-pos']}
+                        handleVolume={this.handleVolume}
+                        rewind={this.rewind}
+                        togglePause={this.togglePause}
+                        advance={this.advance}
+                        handleLoad={this.handleLoad}
+                        handleFullScreenToggle={this.handleFullScreenToggle}
+                        handleSeek={this.handleSeek}
+                        handleSeekMouseDown={this.handleSeekMouseDown}
+                        handleSeekMouseUp={this.handleSeekMouseUp}
+                      />
                     </div>
                   </div>
                 </div>
