@@ -14,14 +14,14 @@ const MainPage = ({ isHomePage, isAllShows }) => {
 
   const params = useParams();
   const history = useHistory();
-  const baseURL = 'http://localhost:5000/horriblesubs';
+  const baseURL = 'http://localhost:5000/api';
 
   const [allShows, setAllShows] = useState(null);
   const [currentPage, setCurrentPage] = useState(parseInt(params.page));
   const [errors, setErrors] = useState(undefined);
 
-  let url = `${baseURL}/get-all?page=${currentPage}`;
-  if (isHomePage) url = `${baseURL}/get-current-season`;
+  let url = `${baseURL}/get-all/${currentPage}`;
+  if (isHomePage) url = `${baseURL}/get-airing`;
 
   useEffect(() => {
     const CancelToken = axios.CancelToken;
@@ -73,21 +73,6 @@ const MainPage = ({ isHomePage, isAllShows }) => {
     </div>
   );
 
-  const parseInfo = (showInfo) => {
-    let title,
-      image = {};
-
-    if (showInfo.attributes) {
-      title = showInfo.attributes.canonicalTitle;
-      image = showInfo.attributes.posterImage.medium;
-    } else {
-      title = 'null';
-      image = 'null';
-    }
-
-    return { title, image };
-  };
-
   return (
     <div className={classes.mainPage}>
       <div style={{ height: '80px' }}></div>
@@ -103,7 +88,7 @@ const MainPage = ({ isHomePage, isAllShows }) => {
                   <div key={index}>
                     <AnimeContainer
                       horribleTitle={show}
-                      info={parseInfo(allShows[show])}
+                      info={allShows[show]}
                     />
                   </div>
                 );

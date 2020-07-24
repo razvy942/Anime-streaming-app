@@ -22,9 +22,9 @@ class Kitsu:
         res = requests.get(search_uri, headers=self.headers)
         return res.json()
 
-    def get_episodes(self):
+    def get_episodes(self, id):
         #mal_id = self.__get_id(title)
-        search_uri = self.url + f'anime/{self.mal_id}/episodes'
+        search_uri = self.url + f'anime/{id}/episodes'
         res = requests.get(search_uri, headers=self.headers)
         return res.json()
 

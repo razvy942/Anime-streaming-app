@@ -10,18 +10,22 @@ export default function Stats({ showInfo }) {
       <div className={classes.infoContainer}>
         <div className={classes.ratings}>
           <div className={classes.score}>
-            <p style={{ textAlign: 'start' }}>{showInfo.score}</p>
+            <p style={{ textAlign: 'start', marginBottom: '20px' }}>
+              {showInfo['attributes']['rating']}
+            </p>
             <span>Average Score</span>
-            <span style={{ fontSize: '0.7rem' }}>
+            {/* <span style={{ fontSize: '0.7rem' }}>
               Rated by {showInfo['scored_by']} users
-            </span>
+            </span> */}
           </div>
 
-          <RatingsChart scores={showInfo.scores} />
+          {/* <RatingsChart scores={showInfo.scores} /> */}
         </div>
         <div className={classes.stats}>
-          <div className={classes.rank}>Ranked #{showInfo['rank']}</div>
-          <div>Aired {showInfo['aired']['string']} </div>
+          <div className={classes.rank}>
+            Ranked #{showInfo['attributes']['rating_rank']}
+          </div>
+          <div>Aired {showInfo['attributes']['start_date']} </div>
         </div>
       </div>
     </div>

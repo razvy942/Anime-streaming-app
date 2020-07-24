@@ -27,7 +27,7 @@ function App() {
         <Route exact path="/player">
           <VideoPlayer />
         </Route>
-        <Route exact path="/show/:title">
+        <Route exact path="/show/:id">
           <ShowInfo />
         </Route>
         <Route exact path="/manage-downloads">

@@ -1,5 +1,5 @@
 const path = require('path');
-const { BrowserWindow, app, ipcMain, shell } = require('electron');
+const { BrowserWindow, app, ipcMain, shell, screen } = require('electron');
 
 const isDev = require('electron-is-dev');
 
@@ -32,21 +32,30 @@ app.commandLine.appendSwitch(
 app.commandLine.appendSwitch('no-sandbox');
 
 app.on('ready', () => {
+  let display = screen.getPrimaryDisplay();
+  let width = display.bounds.width;
+
   const win = new BrowserWindow({
-    minWidth: 1000,
-    minHeight: 700,
+    width: 1000,
+    height: 700,
+    y: 0,
+    x: width - 1000,
     autoHideMenuBar: true,
     webPreferences: { plugins: true, nodeIntegration: true },
   });
+
   win.loadURL(
     isDev
-      ? 'http://localhost:3000/'
+      ? 'http://localhost:3000'
       : `file://${path.join(__dirname, '../build/index.html')}`
   );
 
   win.webContents.on('new-window', function (event, url) {
     event.preventDefault();
   });
+
+  win.setAlwaysOnTop(true, 'floating', 1);
+  win.setVisibleOnAllWorkspaces(true);
 
   if (isDev) win.webContents.openDevTools();
 });

@@ -19,9 +19,9 @@ def get_latest_releases():
     parser.get_latest()
     pass
 
-@bp.route('/get-episodes')
-def get_episodes():
-    episodes = kitsu.get_episodes()
+@bp.route('/get-episodes/<id>')
+def get_episodes(id):
+    episodes = kitsu.get_episodes(id)
     return jsonify(episodes)
 
 @bp.route('/get-characters')
@@ -31,7 +31,7 @@ def get_characters():
 
 @bp.route('/get-airing')
 def get_airing():
-    shows = db.session.query(Series, Attribute).filter(Attribute.status == 'current').order_by(Series.canonical_title).join(Attribute).all()
+    shows = db.session.query(Series, PosterImage, Attribute).filter(Attribute.status == 'current').order_by(Series.canonical_title).join(PosterImage).join(Attribute).all()
     all_shows = []
     _construct_dict_from_tuple_array(all_shows, shows)
     return jsonify(all_shows)
@@ -46,11 +46,16 @@ def smth(page):
 
 @bp.route('/get-info/<id>')
 def get_info(id):
-    attributes = Attribute.query.get(int(id))
-    del attributes.__dict__['_sa_instance_state']
-    return jsonify(attributes.__dict__)
+    shows = db.session.query(Series, PosterImage, Attribute, CoverImage).filter(Series.id == id).join(PosterImage).join(Attribute).join(CoverImage).first()
+    for i in range(4):
+        del shows[i].__dict__['_sa_instance_state']
+   
+    shows[0].__dict__['poster_image'] = shows[1].__dict__
+    shows[0].__dict__['attributes'] = shows[2].__dict__
+    shows[0].__dict__['cover_image'] = shows[3].__dict__
+    return jsonify(shows[0].__dict__)
 
-@bp.route('/search/<name>')
+@bp.route('/search/<name>', methods=['POST'])
 def search(name):
     search_term = f'%{name}%'
     shows_query = []

@@ -335,7 +335,7 @@ class Renderer extends React.Component {
   render() {
     return (
       <div onKeyDown={this.handleKeyDown}>
-        <div style={{ height: '45px' }}></div>
+        {/* <div style={{ height: '45px' }}></div> */}
         <div className={classes.playerContainer}>
           <div
             onMouseMove={this.handleMouseIn}

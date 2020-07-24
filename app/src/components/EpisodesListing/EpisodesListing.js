@@ -23,7 +23,7 @@ export default function EpisodesListing({ showInfo }) {
   useEffect(() => {
     console.log(showInfo['title']);
     axios
-      .get(`http://localhost:5000/horriblesubs/get-episodes`)
+      .get(`http://localhost:5000/api/get-episodes/${showInfo['kitsu_id']}`)
       .then((res) => {
         console.log(res.data.data);
         setEpisodes(res.data.data);
@@ -41,6 +41,7 @@ export default function EpisodesListing({ showInfo }) {
         setErrors('Couldnt obtain torrent');
         return;
       }
+      // TODO: state does not work in hash browser, use redux for state management
       history.push('/player', { path: videoPath, epTitle: arg.name });
     });
 
@@ -48,7 +49,7 @@ export default function EpisodesListing({ showInfo }) {
   }, [history, showInfo]);
 
   const handleDownload = (magnetURI) => {
-    let title = showInfo['title'];
+    let title = showInfo['canonical_title'];
     if (location.state) {
       title = location.state.horribleTitle;
     }
@@ -69,11 +70,11 @@ export default function EpisodesListing({ showInfo }) {
 
     axios
       .get(
-        `http://127.0.0.1:5000/horriblesubs/get-episode/${title}/${epNumber}`
+        `http://127.0.0.1:5000/api/torrent/get-episode/${showInfo.id}/${epNumber}`
       )
       .then((res) => {
         // res is an array
-        const data = res.data[title];
+        const data = res.data[showInfo.id];
         console.log(data);
         let resolutions = {
           '480p': [],
@@ -122,6 +123,12 @@ export default function EpisodesListing({ showInfo }) {
     setIsLoading(!isLoading);
   };
 
+  let coverImage = showInfo['cover_image'];
+  if (coverImage['original']) {
+    coverImage = coverImage['original'];
+  } else {
+    coverImage = defaultThumbnail;
+  }
   // [{ attributes: { airdate, canonicalTitle, number, synopsis, thumbnail: { original } } }]
   return (
     <>
@@ -160,7 +167,7 @@ export default function EpisodesListing({ showInfo }) {
                         src={
                           episode['attributes']['thumbnail']
                             ? episode['attributes']['thumbnail']['original']
-                            : defaultThumbnail
+                            : coverImage
                         }
                         alt={`Episode ${episode['attributes']['number']} thumbnail`}
                       />

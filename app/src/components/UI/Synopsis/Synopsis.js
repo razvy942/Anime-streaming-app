@@ -8,17 +8,19 @@ export default function Synopsis({ showInfo, viewEpisodesAction }) {
       <div className={classes.leftView}>
         <img
           className={classes.showInfoImg}
-          src={showInfo['image_url']}
-          alt={`Cover art for ${showInfo.title}`}
+          src={showInfo['poster_image']['large']}
+          alt={`Cover art for ${showInfo['canonical_title']}`}
         ></img>
         <button
           className={classes.episodesButton}
           onClick={() => viewEpisodesAction(true)}
-        >{`View Episodes (${showInfo.episodes})`}</button>
+        >{`View Episodes (${showInfo['attributes']['episode_count']})`}</button>
       </div>
       <div className={classes.rightView}>
-        <h1 className={classes.title}>{showInfo.title}</h1>
-        <div className={classes.description}>{showInfo.synopsis}</div>
+        <h1 className={classes.title}>{showInfo['canonical_title']}</h1>
+        <div className={classes.description}>
+          {showInfo['attributes']['synopsis']}
+        </div>
       </div>
     </div>
   );

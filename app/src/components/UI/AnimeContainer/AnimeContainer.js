@@ -4,14 +4,17 @@ import { Link } from 'react-router-dom';
 import classes from './AnimeContainer.module.css';
 
 const AnimeContainer = ({ info, horribleTitle }) => {
-  const { title, image } = info;
+  const id = info['id'];
+  console.log(id);
+  const title = info['canonical_title'];
+  const image = info['poster_image']['large'];
   return (
     <div className={classes.box}>
       {/* <p>{seriesDesc}</p> */}
 
       <Link
         to={{
-          pathname: `/show/${encodeURIComponent(title)}`,
+          pathname: `/show/${id}`,
           state: {
             horribleTitle: horribleTitle,
           },

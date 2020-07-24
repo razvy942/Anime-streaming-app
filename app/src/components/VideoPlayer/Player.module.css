@@ -22,9 +22,9 @@ body,
   position: relative;
   bottom: 110px;
   width: 600px;
-  background: rgba(39, 39, 39, 0.98);
-  border-radius: 10px;
-  opacity: 0.8;
+  background: rgba(39, 39, 39, 1);
+  border-radius: 5px;
+  opacity: 0.9;
   transition: ease-in-out 0.4s;
   backdrop-filter: blur(4px);
 }
